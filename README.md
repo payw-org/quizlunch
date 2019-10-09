@@ -20,3 +20,8 @@ $ npm run generate
 ```
 
 For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+
+# kill
+sudo kill -9 $(sudo lsof -t -i:3000)
+sudo fuser -k -n tcp 80
+sudo service httpd start
