@@ -5,13 +5,15 @@
   "author": "hchangjae",
   "private": true,
   "scripts": {
-    "dev": "cross-env HOST=0.0.0.0 nuxt",
+    "dev": "cross-env HOST=0.0.0.0 PORT=80 nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "nuxt": "^2.0.0"
+    "node-sass": "^4.13.0",
+    "nuxt": "^2.0.0",
+    "sass-loader": "^8.0.0"
   },
   "devDependencies": {
     "cross-env": "^6.0.3"
