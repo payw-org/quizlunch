@@ -101,11 +101,31 @@
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
-  // components: {
-  //   Logo
-  // }
+  name: 'quizlunch_main',
+  data() {
+    return {
+      baseURL: {
+        db : 'http://db.api.quizlunch.com',
+        rng : 'http://rng.api.quizlunch.com'
+      }
+    }
+  },
+  mounted(){
+    var options = {
+      params: {
+        quizID: 1
+      }
+    }
+
+    axios.get(`${this.baseURL['db']}/comment`, options).then((res)=>{
+      console.log(res.data)
+    })
+  },
+  method: {
+  }
 }
 </script>
 
