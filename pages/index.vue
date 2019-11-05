@@ -27,73 +27,18 @@
       </div>
     </div>
     <div class="comment-area">
-      <div class="c-input">
-        <div class="ci-textarea">입력공간조오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오오온나긺</div>
+      <form class="c-input" onSubmit="return false;">
+        <input class="ci-textarea" type="textarea" v-model="commentTextarea">
         <div class="ci-cushion"></div>
-        <div class="ci-password">******</div>
+        <input class="ci-password" type="password" v-model="commentPassword">
         <div class="ci-cushion"></div>
-        <div class="ci-submit">Enter</div>
-      </div>
+        <input class="ci-submit" type="submit" value="Enter">
+      </form> 
+      <form action=""></form>
       <div class="c-container">
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">이거 나 답 앎</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅋㅋㅋ이걸 못마추네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
-        </div>
-        <div class="cc-comment">
-          <div class="comment-nickname">무슨무슨닉네임</div>
-          <div class="comment-context">ㅁㅊ; 문제 ㅈㄴ 개떡같이 잘만들었네</div>
+        <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
+          <div class="comment-nickname">{{ comment.nickname }}</div>
+          <div class="comment-context">{{ comment.text }}</div>
         </div>
       </div>
     </div>
@@ -110,21 +55,41 @@ export default {
       baseURL: {
         db : 'http://db.api.quizlunch.com',
         rng : 'http://rng.api.quizlunch.com'
-      }
+      },
+      quizID: 1,
+      comments: [],
+      commentTextarea: '',
+      commentPassword: ''
     }
   },
   mounted(){
-    var options = {
-      params: {
-        quizID: 1
-      }
-    }
-
-    axios.get(`${this.baseURL['db']}/comment`, options).then((res)=>{
-      console.log(res.data)
-    })
+    var renewInterval = setInterval(()=>{
+      this.renewComments() 
+    },1000)
   },
-  method: {
+  methods: {
+    renewComments() {
+      const url = `${this.baseURL['db']}/comment/${this.quizID}`
+      axios.get(url).then((res)=>{
+        this.comments = res.data
+      })
+      return {};
+    },
+    postComment(){
+      const url = `${this.baseURL['db']}/comment/`
+      var body = {
+        quizID: '',
+        nickname: '',
+        text: '',
+        password: '',
+        ip: ''
+      }//quizID need to fix
+      body['quizID'] = this.quizID
+      body['text'] = this.commentTextarea
+      body['password'] = this.commentPassword
+      body['ip'] = ''// need to fix
+
+    }
   }
 }
 </script>
@@ -241,6 +206,7 @@ export default {
 
       .ci-password {
         flex-basis: 4rem;
+        min-width: 0; // override min-width: auto
         
         padding: 0 0.5rem;
         border-left: 3px solid #616161;
