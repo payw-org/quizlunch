@@ -27,10 +27,10 @@
       </div>
     </div>
     <div class="comment-area">
-      <form class="c-input" onSubmit="return false;">
-        <input class="ci-textarea" type="textarea" v-model="commentTextarea">
+      <form class="c-input" v-on:submit.prevent="postComment();">
+        <input class="ci-textarea" type="textarea" v-model="commentTextarea" required>
         <div class="ci-cushion"></div>
-        <input class="ci-password" type="password" v-model="commentPassword">
+        <input class="ci-password" type="password" v-model="commentPassword" required minlength="4">
         <div class="ci-cushion"></div>
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
@@ -65,17 +65,16 @@ export default {
   mounted(){
     var renewInterval = setInterval(()=>{
       this.renewComments() 
-    },1000)
+    },100)
   },
   methods: {
     renewComments() {
       const url = `${this.baseURL['db']}/comment/${this.quizID}`
       axios.get(url).then((res)=>{
-        this.comments = res.data
+        this.comments = res.data.reverse().slice(0,20)
       })
-      return {};
     },
-    postComment(){
+    async postComment(){
       const url = `${this.baseURL['db']}/comment/`
       var body = {
         quizID: '',
@@ -87,8 +86,10 @@ export default {
       body['quizID'] = this.quizID
       body['text'] = this.commentTextarea
       body['password'] = this.commentPassword
-      body['ip'] = ''// need to fix
-
+      body['ip'] = await axios.get('https://api.ipify.org')
+      this.commentTextarea = ''
+      this.commentPassword = ''
+      await axios.post(url, body)
     }
   }
 }
@@ -108,7 +109,7 @@ export default {
   .quiz-area {
     display: flex;
     align-content: center;
-
+    padding-bottom: 1rem;
     .quiz-left {
       flex-basis: 2rem;
       height:2rem;
@@ -187,13 +188,11 @@ export default {
   } // quiz-area
   .comment-area {
 
-    margin: 0 2rem;
-
     font-size: 0.75rem;
     .c-input {
       display: flex;
       
-      margin-top: 1rem;
+      margin: 0 2rem;
       .ci-textarea {
         flex: auto;
         
@@ -233,17 +232,18 @@ export default {
     }
 
     .c-container {
+      margin: 0 0.5rem;
       .cc-comment {
         display: flex;
 
         margin-top: 0.5rem;
         .comment-nickname {
-          flex-basis: 6rem;
+          flex-basis: 5rem;
 
           padding: 0 0.5rem;
           border-right: 2px solid #616161;
 
-          text-align: center;
+          text-align: left;
         }
         .comment-context {
           flex: 5;
