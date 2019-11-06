@@ -10,16 +10,16 @@
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title">아브라카타브라 - C</div>
+          <div class="qt-title"> - Problem Title - </div>
           <div class="qt-money">19999 ￦</div>
         </div>
         <div class="middle">
-          <div class="qm-content-wrapper">
+          <div class="qm-content-wrapper" >
             <div class="qm-content">1+1=?</div>
           </div>
         </div>
         <div class="bottom">
-          - made by abc
+          - made by Quizlunch
         </div>
       </div>
       <div class="quiz-right">
@@ -29,9 +29,9 @@
     <div class="comment-area">
       <form class="c-input" v-on:submit.prevent="postComment();">
         <input class="ci-textarea" type="textarea" v-model="commentTextarea" required>
-        <div class="ci-cushion"></div>
+        <div class="ci-cushion" />
         <input class="ci-password" type="password" v-model="commentPassword" required minlength="4">
-        <div class="ci-cushion"></div>
+        <div class="ci-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
       <form action=""></form>
@@ -54,7 +54,8 @@ export default {
     return {
       baseURL: {
         db : 'http://db.api.quizlunch.com',
-        rng : 'http://rng.api.quizlunch.com'
+        rng : 'http://rng.api.quizlunch.com',
+        db_ws: 'ws://db2.api.quizlunch.com'
       },
       quizID: 1,
       comments: [],
@@ -63,9 +64,7 @@ export default {
     }
   },
   mounted(){
-    var renewInterval = setInterval(()=>{
-      this.renewComments() 
-    },100)
+    this.renewCommentsWS()
   },
   methods: {
     renewComments() {
@@ -80,16 +79,31 @@ export default {
         quizID: '',
         nickname: '',
         text: '',
-        password: '',
-        ip: ''
+        password: ''
       }//quizID need to fix
       body['quizID'] = this.quizID
       body['text'] = this.commentTextarea
       body['password'] = this.commentPassword
-      body['ip'] = await axios.get('https://api.ipify.org')
       this.commentTextarea = ''
       this.commentPassword = ''
       await axios.post(url, body)
+    },
+    async renewCommentsWS(){
+      var ws = new WebSocket(this.baseURL['db_ws'])
+
+      ws.onopen = (event)=>{
+        var result = JSON.parse(event.data)
+        this.comments = result.reverse().slice(0,20)
+      }
+
+      ws.onmessage = (event)=>{
+        var result = JSON.parse(event.data)
+        this.comments = result.reverse().slice(0,20)
+      }
+
+      ws.onerror = (event)=>{
+        console.log("Sever error message :" + event.data )
+      }
     }
   }
 }
@@ -115,8 +129,8 @@ export default {
       height:2rem;
       width:2rem;
 
-      border: 0.5rem solid #616161;
-      border-radius: 2rem;
+      border: 0.3rem solid #616161;
+      border-radius: 1rem;
       margin: auto 0.5rem;   
     }
     .quiz-right {
@@ -124,8 +138,8 @@ export default {
       height:2rem;
       width:2rem;
 
-      border: 0.5rem solid #616161;
-      border-radius: 2rem;
+      border: 0.3rem solid #616161;
+      border-radius: 1rem;
       margin: auto 0.5rem;  
     }
     .quiz-wrapper {
@@ -150,10 +164,10 @@ export default {
           flex-basis: 6rem;
 
           padding-right: 1rem;
-          border-left: 1px solid #616161;
+          // border-left: 1px solid #616161;
 
           text-align: right;
-          // font-size: 1.5rem;
+          font-size: 0.9rem;
         }
       }
       
@@ -188,45 +202,58 @@ export default {
   } // quiz-area
   .comment-area {
 
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     .c-input {
       display: flex;
       
       margin: 0 2rem;
+      margin-bottom: 2rem;
       .ci-textarea {
         flex: auto;
         
-        padding: 0 0.5rem;
-        border-left: 3px solid #616161;
-        border-bottom: 3px solid #616161;
+        padding-left: 0.5rem;
         border-top: 3px solid #616161;
+        border-bottom: 3px solid #616161;
+        border-left: 3px solid #616161;
+        border-right: 0px solid #616161;
         border-radius: 1rem 0 0 1rem;
+        font-size: 1rem;
       }
 
       .ci-password {
-        flex-basis: 4rem;
+        flex-basis: 3rem;
         min-width: 0; // override min-width: auto
         
         padding: 0 0.5rem;
-        border-left: 3px solid #616161;
-        border-bottom: 3px solid #616161;
         border-top: 3px solid #616161;
-        border-radius: 1rem 0 0 1rem;
+        border-bottom: 3px solid #616161;
+        border-left: 0px solid #616161;
+        border-right: 0px solid #616161;
+        border-radius: 0;
+        font-size: 1rem;
       }
 
       .ci-submit {
-        flex-basis: 4rem;
+        flex-basis: 3rem;
         
-        padding: 0 0.5rem;
-        border: 3px solid #616161;
-        border-radius: 1rem;
+        padding-left:0.3rem;
+        padding-right:0.5rem;
+        border-top: 3px solid #616161;
+        border-bottom: 3px solid #616161;
+        border-left: 0px solid #616161;
+        border-right: 3px solid #616161;
+        border-radius: 0 1rem 1rem 0;
 
+        background:none;
         text-align: center;
+        font-size: 0.8rem;
       }
       
       .ci-cushion {
-        border-left: 3px solid #616161;
-        margin-right: 0.5rem;
+        width: 0.5rem;
+
+        border-left: 2px solid #616161;
+        border-right: 2px solid #616161;
       }
 
     }
@@ -238,12 +265,11 @@ export default {
 
         margin-top: 0.5rem;
         .comment-nickname {
-          flex-basis: 5rem;
+          flex-basis: 6rem;
 
-          padding: 0 0.5rem;
-          border-right: 2px solid #616161;
+          border-right: 1px solid #616161;
 
-          text-align: left;
+          text-align: center;
         }
         .comment-context {
           flex: 5;
