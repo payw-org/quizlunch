@@ -3,7 +3,6 @@
     <div class="title">Quizlunch</div>
     
     <div class="quiz-area">
-    
       <div class="quiz-left">
 
       </div>
@@ -67,12 +66,6 @@ export default {
     this.renewCommentsWS()
   },
   methods: {
-    renewComments() {
-      const url = `${this.baseURL['db']}/comment/${this.quizID}`
-      axios.get(url).then((res)=>{
-        this.comments = res.data.reverse().slice(0,20)
-      })
-    },
     async postComment(){
       const url = `${this.baseURL['db']}/comment/`
       var body = {
@@ -93,12 +86,12 @@ export default {
 
       ws.onopen = (event)=>{
         var result = JSON.parse(event.data)
-        this.comments = result.reverse().slice(0,20)
+        this.comments = result
       }
 
       ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
-        this.comments = result.reverse().slice(0,20)
+        this.comments = result
       }
 
       ws.onerror = (event)=>{
@@ -110,10 +103,10 @@ export default {
 </script>
 
 <style lang="scss">
-.container {
-  
-  // padding: 0 3rem;
+@import '~assets/fonts/nanumgothic.css';
 
+.container {
+  // padding: 0 3rem;
   .title {
     padding: 2rem 0;
     text-align: center; //dev
