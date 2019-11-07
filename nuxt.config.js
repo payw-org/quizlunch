@@ -24,6 +24,7 @@ export default {
   ** Global CSS
   */
   css: [
+    '~/assets/css/nanumgothic.css'
   ],
   /*
   ** Plugins to load before mounting the App
