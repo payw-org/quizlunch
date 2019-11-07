@@ -103,7 +103,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '~assets/fonts/nanumgothic.css';
 
 .container {
   // padding: 0 3rem;
