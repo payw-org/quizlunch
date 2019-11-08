@@ -15,6 +15,7 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
+  srcDir: 'src/',
   /*
   ** Customize the progress-bar color
   */
@@ -23,6 +24,7 @@ export default {
   ** Global CSS
   */
   css: [
+    '~/assets/css/PAYWPro.css'
   ],
   /*
   ** Plugins to load before mounting the App
@@ -46,7 +48,30 @@ export default {
     /*
     ** You can extend webpack config here
     */
-    extend (config, ctx) {
+    extend(config) {
+      const svgRule = config.module.rules.find(rule =>
+        rule.test.test('.svg')
+      );
+    
+      svgRule.test = /\.(png|jpe?g|gif|webp)$/;
+    
+      config.module.rules.push({
+        test: /\.(png|jpe?g|gif|svg|webp)$/,
+        oneOf:[
+          {
+          loader: 'file-loader',
+          query: {
+              name: 'assets/[name].[hash:8].[ext]'
+            }
+          },
+          {
+            loader: 'url-loader',
+            query: {
+              name: 'img/[name].[hash:7].[ext]'
+            }
+          }
+        ]
+      })
     }
   }
 }
