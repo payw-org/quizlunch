@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <div class="title">Quizlunch</div>
+    <div class="title">
+      <div class="logo" />uizLunch
+    </div>
     
     <div class="quiz-area">
       <div class="quiz-left">
@@ -9,12 +11,12 @@
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title"> - Problem Title - </div>
+          <div class="qt-title"> {{ quiz.title}} </div>
           <div class="qt-money">19999 ￦</div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
-            <div class="qm-content">1+1=?</div>
+            <div class="qm-content">{{ quiz.information }}</div>
           </div>
         </div>
         <div class="bottom">
@@ -40,10 +42,16 @@
         <div class="input-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
-      <form action=""></form>
       <div class="c-container">
         <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
-          <div class="comment-nickname">{{ comment.nickname }}</div>
+          <div class="comment-info">
+            <div class="comment-nickname">{{ comment.nickname }}</div>
+            <div class="comment-time">{{ comment.time }}</div>
+            <div class="comment-ip">{{ comment.ip }}.***.***</div>
+            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
+              <div class="cd-button" type="button"/>
+            </form>
+          </div>
           <div class="comment-context">{{ comment.text }}</div>
         </div>
       </div>
@@ -64,6 +72,7 @@ export default {
         db_ws: 'wss://db2.api.quizlunch.com'
       },
       quizID: 1,
+      quiz: '',
       comments: [],
       commentTextarea: '',
       commentPassword: '',
@@ -71,7 +80,7 @@ export default {
     }
   },
   mounted(){
-    this.renewCommentsWS()
+    this.connectWS()
   },
   methods: {
     async postComment(){
@@ -89,20 +98,13 @@ export default {
       await axios.post(url, body)
     },
     async postAnswer(){ // need to fix
-      const url = `${this.baseURL['db']}/comment/`
-      var body = {
-        quizID: '',
-        nickname: '',
-        text: '',
-        password: ''
-      }//quizID need to fix
-      body['quizID'] = this.quizID
-      body['text'] = this.commentTextarea
-      body['password'] = this.commentPassword
-      this.commentTextarea = ''
-      await axios.post(url, body)
+      const url = `${this.baseURL['db']}/${this.quizID}/${this.answerTextarea}`
+      this.answerTextarea = ''
+      await axios.get(url,(data)=>{
+        console.log(data)
+      })
     },
-    async renewCommentsWS(){
+    async connectWS(){
       var ws = new WebSocket(this.baseURL['db_ws'])
 
       ws.onopen = (event)=>{
@@ -111,7 +113,16 @@ export default {
 
       ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
-        this.comments = result
+        console.log(result)
+        if(result.comments){
+          this.comments = result.comments
+          console.log('get comments')
+        }
+        if(result.quiz){
+          this.quiz = result.quiz
+          console.log(this.quiz)
+          console.log('get quiz')
+        }
       }
 
       ws.onerror = (event)=>{
@@ -134,10 +145,18 @@ export default {
     padding: 1.5rem 0;
     text-align: center; //dev
     font-size: 2.5rem;
-    font-weight: 700;
+    font-weight: 600;
+    .logo {
+      display: inline-block;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-right: 0.1rem;
+      background: url('~assets/img/logo.svg') no-repeat;
+    }
   }
 
   .quiz-area {
+    
     display: flex;
     align-content: center;
     padding-bottom: 0.5rem;
@@ -160,27 +179,30 @@ export default {
       margin: auto 0.5rem;  
     }
     .quiz-wrapper {
+      
       flex: auto;
       display: flex;
       flex-direction: column;
 
       text-align: center;
 
-      border: 3px solid #616161; // devl
+      // border: 3px solid #616161; // devl
       border-radius: 1rem;
+      background: radial-gradient(63.13% 94.45% at 18.96% 20.51%, #FFFFFF 0%, #EEEEEE 100%);
       .top {
         flex: 1;
         display: flex;
 
-        padding: 1rem 0;
+        padding: 0.5rem 0;
+        margin: 0 1rem;
         
         .qt-title {
           flex: auto;
+          text-align: center;
         }
         .qt-money {
           flex-basis: 6rem;
 
-          padding-right: 1rem;
           // border-left: 1px solid #616161;
 
           text-align: right;
@@ -261,7 +283,7 @@ export default {
     .c-input {
       display: flex;
       
-      margin: 0 2rem;
+      margin: 0 0.5rem;
       .ci-textarea {
         flex: auto;
         min-width: 0; // override min-width: auto
@@ -309,15 +331,48 @@ export default {
     .c-container {
       margin: 0 0.5rem;
       .cc-comment {
-        display: flex;
 
+        padding: 0.3rem 0;
         margin-top: 0.5rem;
-        .comment-nickname {
-          flex-basis: 6rem;
+        border-radius: 10px;
+        background-color: #EFEFEF;
+        align-items: center;
 
-          border-right: 1px solid #616161;
+        .comment-info {
+          display: flex;
+          .comment-nickname {
+            flex-basis: auto;
 
-          text-align: center;
+            padding: 0 0.5rem;
+           
+            font-weight: 400;
+          }
+          .comment-time {
+            flex: auto;
+
+            font-size: 0.7rem;
+            color: #AAAAAA;
+            text-align: left;
+          }
+          .comment-ip {
+            flex-basis: 6rem;
+            color: #EFEFEF;
+            font-size: 0.7rem;
+          }
+          .comment-delete {
+            flex-basis: 1.6rem;
+            padding: 0 0.5rem;
+
+            .cd-button {
+              min-width: 0; // override min-width: auto
+              min-height: 0; // override min-width: auto
+              height: 0.6rem;
+              width: 0.6rem;
+              border: none;
+              background: url('~assets/img/cancel.svg') no-repeat;
+              background-size: cover;
+            }
+          }
         }
         .comment-context {
           flex: 5;
@@ -325,8 +380,8 @@ export default {
           padding: 0 0.5rem;
 
           text-align: left;
-        }
-      }
+        } // comment-context
+      } // cc-comment
     } // c-container
   } //comment-area
 
