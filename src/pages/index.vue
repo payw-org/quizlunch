@@ -142,7 +142,7 @@ export default {
     async onCloseWS(){
       this.ws.onclose = (event)=>{
         console.log("Sever closed")
-        ws = new WebSocket(this.baseURL['db_ws'])
+        this.ws = new WebSocket(this.baseURL['db_ws'])
       }
     }
   }
@@ -265,9 +265,9 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 3px solid #616161;
+        border-top: 1px solid #616161;
+        border-bottom: 1px solid #616161;
+        border-left: 1px solid #616161;
         border-right: 0px solid #616161;
         border-radius: 1rem 0 0 1rem;
         font-size: 1rem;
@@ -279,10 +279,10 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
+        border-top: 1px solid #616161;
+        border-bottom: 1px solid #616161;
         border-left: 0px solid #616161;
-        border-right: 3px solid #616161;
+        border-right: 1px solid #616161;
         border-radius: 0 1rem 1rem 0;
 
         background:none;
@@ -308,9 +308,9 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 3px solid #616161;
+        border-top: 1px solid #616161;
+        border-bottom: 1px solid #616161;
+        border-left: 1px solid #616161;
         border-right: 0px solid #616161;
         border-radius: 1rem 0 0 1rem;
         font-size: 1rem;
@@ -322,8 +322,8 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding: 0 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
+        border-top: 1px solid #616161;
+        border-bottom: 1px solid #616161;
         border-left: 0px solid #616161;
         border-right: 0px solid #616161;
         border-radius: 0;
@@ -335,10 +335,10 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
+        border-top: 1px solid #616161;
+        border-bottom: 1px solid #616161;
         border-left: 0px solid #616161;
-        border-right: 3px solid #616161;
+        border-right: 1px solid #616161;
         border-radius: 0 1rem 1rem 0;
 
         background:none;
@@ -355,9 +355,10 @@ export default {
         padding: 0.3rem 0;
         margin-top: 0.5rem;
         border-radius: 10px;
-        background-color: #EFEFEF;
-        align-items: center;
 
+        align-items: center;
+        background: #D3DAE6;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
         .comment-info {
           display: flex;
           .comment-nickname {
@@ -371,12 +372,12 @@ export default {
             flex: auto;
 
             font-size: 0.7rem;
-            color: #AAAAAA;
+            color: #888;
             text-align: left;
           }
           .comment-ip {
             flex-basis: 6rem;
-            color: #EFEFEF;
+            color: #D3DAE6;
             font-size: 0.7rem;
           }
           .comment-delete {
@@ -406,8 +407,8 @@ export default {
   } //comment-area
 
   .input-cushion {
-    border-left: 1px solid #616161;
-    border-right: 1px solid #616161;
+    border-left: 0.5px solid #616161;
+    border-right: 0.5px solid #616161;
   }
 }
 </style>
