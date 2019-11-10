@@ -28,11 +28,14 @@
       </div>
     </div>
     <div class="answer-area">
-      <form class="a-input" v-on:submit.prevent="postAnswer();">
+      <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
         <input class="ai-textarea" type="textarea" v-model="answerTextarea" required maxlength="80">
         <div class="input-cushion" />
         <input class="ai-submit" type="submit" value="Enter">
-      </form> 
+      </form>
+      <div class="a-answer" v-else>
+        {{ quiz.answer }}
+      </div>
     </div>
     <div class="comment-area">
       <form class="c-input" v-on:submit.prevent="postComment();">
@@ -66,6 +69,7 @@ export default {
   name: 'quizlunch_main',
   data() {
     return {
+      ws: '',
       baseURL: {
         db : 'https://db.api.quizlunch.com',
         rng : 'https://rng.api.quizlunch.com',
@@ -73,62 +77,70 @@ export default {
       },
       quizID: 1,
       quiz: '',
+      answer: '',
       comments: [],
+      numOfComments: 20,
       commentTextarea: '',
       commentPassword: '',
       answerTextarea: ''
     }
   },
   mounted(){
-    this.connectWS()
+    this.initWS()
   },
   methods: {
     async postComment(){
-      const url = `${this.baseURL['db']}/comment/`
-      var body = {
-        quizID: '',
-        nickname: '',
-        text: '',
-        password: ''
-      }//quizID need to fix
-      body['quizID'] = this.quizID
-      body['text'] = this.commentTextarea
-      body['password'] = this.commentPassword
+      const url = `${this.baseURL['db']}/comment`
+      const body = {
+        quizID: this.quizID,
+        text: this.commentTextarea,
+        password: this.commentPassword
+      }
       this.commentTextarea = ''
       await axios.post(url, body)
     },
     async postAnswer(){ // need to fix
-      const url = `${this.baseURL['db']}/${this.quizID}/${this.answerTextarea}`
+      const url = `${this.baseURL['db']}/quiz/${this.quizID}/${this.answerTextarea}`
       this.answerTextarea = ''
-      await axios.get(url,(data)=>{
-        console.log(data)
-      })
+      
+      const result = await axios.get(url)
+      console.log(result.data)
+    }, // get signal
+    async initWS(){
+      this.ws = new WebSocket(this.baseURL['db_ws'])
+      this.onOpenWS()
+      this.onMessageWS()
+      this.onErrorWS()
+      this.onCloseWS()
     },
-    async connectWS(){
-      var ws = new WebSocket(this.baseURL['db_ws'])
-
-      ws.onopen = (event)=>{
+    async onOpenWS(){
+      this.ws.onopen = (event)=>{
         console.log('connected')
       }
-
-      ws.onmessage = (event)=>{
+    },
+    async onMessageWS(){
+      this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
         console.log(result)
         if(result.comments){
           this.comments = result.comments
-          console.log('get comments')
+        }
+        if(result.comment){
+          console.log(result.comment)
+          this.comments = [result.comment].concat(this.comments.slice(0,this.numOfComments-1))
         }
         if(result.quiz){
           this.quiz = result.quiz
-          console.log(this.quiz)
-          console.log('get quiz')
         }
       }
-
-      ws.onerror = (event)=>{
+    },
+    async onErrorWS(){
+      this.ws.onerror = (event)=>{
         console.log("Sever error message :" + event.data )
       }
-      ws.onclose = (event)=>{
+    },
+    async onCloseWS(){
+      this.ws.onclose = (event)=>{
         console.log("Sever closed")
         ws = new WebSocket(this.baseURL['db_ws'])
       }
@@ -165,18 +177,18 @@ export default {
       height:2rem;
       width:2rem;
 
-      border: 0.3rem solid #616161;
-      border-radius: 1rem;
-      margin: auto 0.5rem;   
+      margin: auto 0.5rem;
+      background: url('~assets/img/left.svg') no-repeat;
+      background-size: contain;
     }
     .quiz-right {
       flex-basis: 2rem;
       height:2rem;
       width:2rem;
 
-      border: 0.3rem solid #616161;
-      border-radius: 1rem;
-      margin: auto 0.5rem;  
+      margin: auto 0.5rem;
+      background: url('~assets/img/right.svg') no-repeat;
+      background-size:contain;
     }
     .quiz-wrapper {
       
@@ -188,7 +200,8 @@ export default {
 
       // border: 3px solid #616161; // devl
       border-radius: 1rem;
-      background: radial-gradient(63.13% 94.45% at 18.96% 20.51%, #FFFFFF 0%, #EEEEEE 100%);
+      background: url('~assets/img/background-quiz.svg') no-repeat;
+      background-size: cover;
       .top {
         flex: 1;
         display: flex;
@@ -240,11 +253,13 @@ export default {
   } // quiz-area
 
   .answer-area{
+    display: flex;
+    justify-content: center;
+
     padding-bottom: 2rem;
     .a-input {
       display: flex;
-      
-      margin: 0 8rem;
+      width: 9rem;
       .ai-textarea {
         flex: auto;
         min-width: 0; // override min-width: auto
@@ -256,6 +271,7 @@ export default {
         border-right: 0px solid #616161;
         border-radius: 1rem 0 0 1rem;
         font-size: 1rem;
+        font-family: inherit;
       }
 
       .ai-submit {
@@ -275,6 +291,9 @@ export default {
       }
 
     } //a-input
+    .a-answer{
+      text-align: center;
+    }
   } // answer-area
 
   .comment-area {
@@ -295,6 +314,7 @@ export default {
         border-right: 0px solid #616161;
         border-radius: 1rem 0 0 1rem;
         font-size: 1rem;
+        font-family: inherit;
       }
 
       .ci-password {
