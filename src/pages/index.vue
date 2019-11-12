@@ -75,8 +75,7 @@ export default {
         rng : 'https://rng.api.quizlunch.com',
         db_ws: 'wss://db2.api.quizlunch.com'
       },
-      quizID: 1,
-      quiz: '',
+      quiz: {},
       answer: '',
       comments: [],
       numOfComments: 20,
@@ -92,7 +91,7 @@ export default {
     async postComment(){
       const url = `${this.baseURL['db']}/comment`
       const body = {
-        quizID: this.quizID,
+        quizID: this.quiz.quizID,
         text: this.commentTextarea,
         password: this.commentPassword
       }
@@ -100,7 +99,7 @@ export default {
       await axios.post(url, body)
     },
     async postAnswer(){ // need to fix
-      const url = `${this.baseURL['db']}/quiz/${this.quizID}/${this.answerTextarea}`
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
       this.answerTextarea = ''
       
       const result = await axios.get(url)
@@ -121,7 +120,6 @@ export default {
     async onMessageWS(){
       this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
-        console.log(result)
         if(result.comments){
           this.comments = result.comments
         }
@@ -200,8 +198,9 @@ export default {
 
       // border: 3px solid #616161; // devl
       border-radius: 1rem;
-      background: url('~assets/img/background-quiz.svg') no-repeat;
+      background: #E3E4D9;
       background-size: cover;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
         flex: 1;
         display: flex;
@@ -265,13 +264,15 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 1px solid #616161;
-        border-bottom: 1px solid #616161;
-        border-left: 1px solid #616161;
-        border-right: 0px solid #616161;
+        border: none;
         border-radius: 1rem 0 0 1rem;
+
         font-size: 1rem;
         font-family: inherit;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ai-submit {
@@ -279,15 +280,16 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 1px solid #616161;
-        border-bottom: 1px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 1px solid #616161;
+        border: none;
         border-radius: 0 1rem 1rem 0;
 
-        background:none;
         text-align: center;
         font-size: 0.8rem;
+        background:none;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
     } //a-input
@@ -308,13 +310,15 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 1px solid #616161;
-        border-bottom: 1px solid #616161;
-        border-left: 1px solid #616161;
-        border-right: 0px solid #616161;
+        border: none;
         border-radius: 1rem 0 0 1rem;
+
         font-size: 1rem;
         font-family: inherit;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ci-password {
@@ -322,12 +326,14 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding: 0 0.5rem;
-        border-top: 1px solid #616161;
-        border-bottom: 1px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 0px solid #616161;
+        border: none;
         border-radius: 0;
+
+        background: #EEF1F6;
         font-size: 1rem;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ci-submit {
@@ -335,15 +341,16 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 1px solid #616161;
-        border-bottom: 1px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 1px solid #616161;
+        border: none;
         border-radius: 0 1rem 1rem 0;
 
-        background:none;
         text-align: center;
         font-size: 0.8rem;
+        background:none;
+        background-color: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
     }
@@ -407,8 +414,8 @@ export default {
   } //comment-area
 
   .input-cushion {
-    border-left: 0.5px solid #616161;
-    border-right: 0.5px solid #616161;
+    border-left: 0.5px solid #BFC7D5;
+    border-right: 0.5px solid #BFC7D5;
   }
 }
 </style>
