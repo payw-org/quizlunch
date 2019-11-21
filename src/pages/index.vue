@@ -5,14 +5,12 @@
     </div>
     
     <div class="quiz-area">
-      <div class="quiz-left">
-
-      </div>
+      <!-- <div class="quiz-left" /> -->
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title"> {{ quiz.title}} </div>
-          <div class="qt-money">19999 ￦</div>
+          <div class="qt-title"> {{ quiz.title }} </div>
+          <div class="qt-money">{{ quiz.money }}</div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
@@ -23,9 +21,7 @@
           - made by Quizlunch
         </div>
       </div>
-      <div class="quiz-right">
-
-      </div>
+      <!-- <div class="quiz-right" /> -->
     </div>
     <div class="answer-area">
       <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
@@ -120,15 +116,23 @@ export default {
     async onMessageWS(){
       this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
-        if(result.comments){
-          this.comments = result.comments
+        console.log(result)
+        console.log('result')
+        console.log('result')
+        console.log('result')
+        return
+        if(result['renew comments']){
+          this.comments = result['renew comments']
         }
-        if(result.comment){
-          console.log(result.comment)
-          this.comments = [result.comment].concat(this.comments.slice(0,this.numOfComments-1))
+        if(result['insert comment']){
+          this.comments = [result['insert comment']].concat(this.comments.slice(0,this.numOfComments-1))
         }
-        if(result.quiz){
-          this.quiz = result.quiz
+        if(result['renew quiz']){
+          this.quiz = result['renew quiz']
+          console.log(this.quiz)
+        }
+        if(result['renew money']){
+          this.money = result['renew money']
         }
       }
     },
@@ -196,9 +200,9 @@ export default {
 
       text-align: center;
 
-      // border: 3px solid #616161; // devl
+      margin: 0 1rem;
       border-radius: 1rem;
-      background: #E3E4D9;
+      background: #EEF1F6;
       background-size: cover;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
