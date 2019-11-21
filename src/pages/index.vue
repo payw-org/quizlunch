@@ -84,6 +84,46 @@ export default {
     this.initWS()
   },
   methods: {
+    async initWS(){
+      this.ws = new WebSocket(this.baseURL['db_ws'])
+      this.onOpenWS()
+      this.onMessageWS()
+      this.onErrorWS()
+      this.onCloseWS()
+    },
+    async onOpenWS(){
+      this.ws.onopen = (event)=>{
+        console.log('connected')
+      }
+    },
+    async onMessageWS(){
+      this.ws.onmessage = (event)=>{
+        var result = JSON.parse(event.data)
+        if(result['renew comments']){
+          this.comments = result['renew comments']
+        }
+        if(result['insert comment']){
+          this.comments = [result['insert comment']].concat(this.comments.slice(0,this.numOfComments-1))
+        }
+        if(result['renew quiz']){
+          this.quiz = result['renew quiz']
+        }
+        if(result['renew money']){
+          this.quiz.money = result['renew money']
+        }
+      }
+    },
+    async onErrorWS(){
+      this.ws.onerror = (event)=>{
+        console.log("Sever error message :" + event.data )
+      }
+    },
+    async onCloseWS(){
+      this.ws.onclose = (event)=>{
+        console.log("Sever closed")
+        this.ws = new WebSocket(this.baseURL['db_ws'])
+      }
+    },
     async postComment(){
       const url = `${this.baseURL['db']}/comment`
       const body = {
@@ -100,53 +140,7 @@ export default {
       
       const result = await axios.get(url)
       console.log(result.data)
-    }, // get signal
-    async initWS(){
-      this.ws = new WebSocket(this.baseURL['db_ws'])
-      this.onOpenWS()
-      this.onMessageWS()
-      this.onErrorWS()
-      this.onCloseWS()
-    },
-    async onOpenWS(){
-      this.ws.onopen = (event)=>{
-        console.log('connected')
-      }
-    },
-    async onMessageWS(){
-      this.ws.onmessage = (event)=>{
-        var result = JSON.parse(event.data)
-        console.log(result)
-        console.log('result')
-        console.log('result')
-        console.log('result')
-        return
-        if(result['renew comments']){
-          this.comments = result['renew comments']
-        }
-        if(result['insert comment']){
-          this.comments = [result['insert comment']].concat(this.comments.slice(0,this.numOfComments-1))
-        }
-        if(result['renew quiz']){
-          this.quiz = result['renew quiz']
-          console.log(this.quiz)
-        }
-        if(result['renew money']){
-          this.money = result['renew money']
-        }
-      }
-    },
-    async onErrorWS(){
-      this.ws.onerror = (event)=>{
-        console.log("Sever error message :" + event.data )
-      }
-    },
-    async onCloseWS(){
-      this.ws.onclose = (event)=>{
-        console.log("Sever closed")
-        this.ws = new WebSocket(this.baseURL['db_ws'])
-      }
-    }
+    } // get signal
   }
 }
 </script>
@@ -200,7 +194,7 @@ export default {
 
       text-align: center;
 
-      margin: 0 1rem;
+      margin: 0 0.5rem;
       border-radius: 1rem;
       background: #EEF1F6;
       background-size: cover;
