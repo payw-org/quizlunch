@@ -82,6 +82,8 @@ export default {
   },
   mounted(){
     this.initWS()
+    
+    
   },
   methods: {
     async initWS(){
@@ -103,7 +105,8 @@ export default {
           this.comments = result['renew comments']
         }
         if(result['insert comment']){
-          this.comments = [result['insert comment']].concat(this.comments.slice(0,this.numOfComments-1))
+          this.comments = [result['insert comment']].concat(this.comments)
+          this.comments = this.comments.slice(0,this.numOfComments)
         }
         if(result['renew quiz']){
           this.quiz = result['renew quiz']
@@ -124,6 +127,9 @@ export default {
         this.ws = new WebSocket(this.baseURL['db_ws'])
       }
     },
+    //
+    // REST API
+    //
     async postComment(){
       const url = `${this.baseURL['db']}/comment`
       const body = {
@@ -133,6 +139,18 @@ export default {
       }
       this.commentTextarea = ''
       await axios.post(url, body)
+    },
+    async moreComments(){
+      const url = `${this.baseURL['db']}/comment/more`
+      const body = {
+        params: {
+          quizID: this.quiz.quizID,
+          numOfComments: this.numOfComments,
+        }
+      }
+      const result = await axios.get(url, body)
+      this.comments = this.comments.concat(result.data)
+      this.numOfComments += 20
     },
     async postAnswer(){ // need to fix
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
