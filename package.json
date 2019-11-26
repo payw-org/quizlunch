@@ -4,11 +4,20 @@
   "description": "My rad Nuxt.js project",
   "author": "hchangjae",
   "private": true,
+  "config": {
+    "nuxt":{
+      "host": "0.0.0.0",
+      "port": "3000"
+    }
+  },
   "scripts": {
     "dev": "cross-env HOST=0.0.0.0 PORT=3000 nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "start-dist": "npm run build && pm2 start npm --name 'web-dist' -- run start",
+    "stop-dist": "pm2 delete web-dist",
+    "restart-dist": "npm run stop-dist && npm run start-dist"
   },
   "dependencies": {
     "axios": "^0.19.0",
