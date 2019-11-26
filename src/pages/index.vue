@@ -82,8 +82,6 @@ export default {
   },
   mounted(){
     this.initWS()
-    
-    
   },
   methods: {
     async initWS(){
@@ -112,7 +110,8 @@ export default {
           this.quiz = result['renew quiz']
         }
         if(result['renew money']){
-          this.quiz.money = result['renew money']
+          if(result['renew money']['quizID'] === this.quiz['quizID'])
+            this.quiz.money = result['renew money']['value']
         }
       }
     },
@@ -247,9 +246,9 @@ export default {
           align-items: center;
           justify-content: center;
 
-          .qm-content {
+          // .qm-content {
 
-          }
+          // }
 
         }
       }
