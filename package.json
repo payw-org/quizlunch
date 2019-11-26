@@ -17,7 +17,10 @@
     "generate": "nuxt generate",
     "start-dist": "npm run build && pm2 start npm --name 'web-dist' -- run start",
     "stop-dist": "pm2 delete web-dist",
-    "restart-dist": "npm run stop-dist && npm run start-dist"
+    "restart-dist": "npm run stop-dist && npm run start-dist",
+    "start-dev": "pm2 start npm --name 'web-dev' -- run dev",
+    "stop-dev": "pm2 delete web-dev",
+    "restart-dev": "npm run stop-dev && npm run start-dev"
   },
   "dependencies": {
     "axios": "^0.19.0",
