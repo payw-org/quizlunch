@@ -53,7 +53,7 @@
             <div class="comment-time">{{ comment.time }}</div>
             <div class="comment-ip">{{ comment.ip }}.***.***</div>
             <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
-              <div class="cd-button" type="button"/>
+              <!-- <div class="cd-button" type="button"/> -->
             </form>
           </div>
           <div class="comment-context">{{ comment.text }}</div>
@@ -83,7 +83,8 @@ export default {
       numOfComments: 20,
       commentTextarea: '',
       commentPassword: '',
-      answerTextarea: ''
+      answerTextarea: '',
+      busy: false
     }
   },
   mounted(){
@@ -103,20 +104,27 @@ export default {
       }
     },
     async onMessageWS(){
-      this.ws.onmessage = (event)=>{
+      this.ws.onmessage = (event)=>{  
         var result = JSON.parse(event.data)
         if(result['renew comments']){
           this.comments = result['renew comments']
         }
         if(result['insert comment']){
+          console.log(result['insert comment'].commentID)
           this.comments = [result['insert comment']].concat(this.comments)
           this.comments = this.comments.slice(0,this.numOfComments)
+        }
+        if(result['delete comment']){
+          for(var i=0; i<this.comments.lenght; i++){
+            if(this.comments[i]['commentID'] == result['delete comment'])
+              this.comments = this.comments.splice(i, 1)
+          }
         }
         if(result['renew quiz']){
           this.quiz = result['renew quiz']
         }
         if(result['renew money']){
-          if(result['renew money']['quizID'] === this.quiz['quizID'])
+          if(this.quiz['quizID'] === result['renew money']['quizID'] && this.quiz['gotAnswer'] === 0)
             this.quiz.money = result['renew money']['value']
         }
       }
@@ -136,6 +144,8 @@ export default {
     // REST API
     //
     async postComment(){
+      if(this.commentTextarea.trim().length < 3)
+        return
       const url = `${this.baseURL['db']}/comment`
       const body = {
         quizID: this.quiz.quizID,
