@@ -110,7 +110,6 @@ export default {
           this.comments = result['renew comments']
         }
         if(result['insert comment']){
-          console.log(result['insert comment'].commentID)
           this.comments = [result['insert comment']].concat(this.comments)
           this.comments = this.comments.slice(0,this.numOfComments)
         }
@@ -167,13 +166,15 @@ export default {
       this.comments = this.comments.concat(result.data)
       this.numOfComments += 20
     },
-    async postAnswer(){ // need to fix
+    async postAnswer(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
       this.answerTextarea = ''
       
       const result = await axios.get(url)
-      console.log(result.data)
-    } // get signal
+      if(result.data === 200){
+        location.href = 'https://quizlunch.com/awards'
+      }
+    }
   }
 }
 </script>
