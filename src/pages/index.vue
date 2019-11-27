@@ -51,7 +51,7 @@
           <div class="comment-info">
             <div class="comment-nickname">{{ comment.nickname }}</div>
             <div class="comment-time">{{ comment.time }}</div>
-            <div class="comment-ip">{{ comment.ip }}.***.***</div>
+            <div class="comment-ip">{{ comment.ip }}</div>
             <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
               <!-- <div class="cd-button" type="button"/> -->
             </form>

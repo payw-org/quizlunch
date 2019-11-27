@@ -6,7 +6,7 @@
 
 <style>
 html {
-  max-width: 40rem;
+  max-width: 45rem;
   margin: 0 auto;
   font-family: 'PAYW Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-weight: 400;
