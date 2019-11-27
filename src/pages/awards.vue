@@ -155,6 +155,7 @@ export default {
         bank: '',
         account:''
       }
+      
       body['fullName'] = this.fullName
       body['bank'] = this.bank
       body['account'] = this.account
