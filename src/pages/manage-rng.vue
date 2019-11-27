@@ -91,9 +91,16 @@ export default {
       body['masterKey'] = this.masterKey   
       this.nounTextArea = ''   
       var result = await axios.post(url, body)
-      alert("새로운 명사 " + body.name+ " 생성되었습니다");
-      this.nouns.push(body)
-      // alert("비밀번호가 틀립니다");
+      if(result.data==200)
+      {
+        alert("새로운 명사 " + body.name+ " 생성되었습니다");
+        this.nouns.push(body)
+      }
+      else
+      {
+        alert("비밀번호가 틀립니다");
+      }
+      
     },
     async deleteNoun(nounName){
 
@@ -105,9 +112,15 @@ export default {
       data['name'] = nounName
       data['masterKey'] = this.masterKey   
       var result=await axios.delete(url, {data})
-      alert(nounName+" 명사가 삭제되었습니다.");
-      this.nouns=this.removeItemInArray(this.nouns,nounName)
-      // alert("비밀번호가 틀립니다");
+      if(result.data==200)
+      {
+        alert(nounName+" 명사가 삭제되었습니다.");
+        this.nouns=this.removeItemInArray(this.nouns,nounName)
+      }
+      else
+      {
+        alert("비밀번호가 틀립니다");
+      }
 
     },
     async postAdjective(){ 
@@ -120,9 +133,15 @@ export default {
       body['masterKey'] = this.masterKey   
       this.adjectiveTextArea = ''   
       var result = await axios.post(url, body)
-      alert("새로운 형용사 " + body.name+ " 생성되었습니다");
-      this.adjectives.push(body)
-      // alert("비밀번호가 틀립니다");
+      if(result.data==200)
+      {
+        alert("새로운 형용사 " + body.name+ " 생성되었습니다");
+        this.adjectives.push(body)
+      }
+      else
+      {
+        alert("비밀번호가 틀립니다");
+      }
     },
     async deleteAdjective(adjectiveName){
       const url = `${this.baseURL['rng']}/manage/adjectives/delete`
@@ -133,9 +152,15 @@ export default {
       data['name'] = adjectiveName
       data['masterKey'] = this.masterKey   
       var result = await axios.delete(url, {data})
-      alert(adjectiveName+" 형용사가 삭제되었습니다.");
-      this.adjectives=this.removeItemInArray(this.adjectives,adjectiveName)
-      // alert("비밀번호가 틀립니다");
+      if(result.data==200)
+      {
+        alert(adjectiveName+" 형용사가 삭제되었습니다.");
+        this.adjectives=this.removeItemInArray(this.adjectives,adjectiveName)
+      }
+      else
+      {
+        alert("비밀번호가 틀립니다");
+      }
     },
     async getData(){
       const url1 = `${this.baseURL['rng']}/manage/nouns/all`
