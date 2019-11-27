@@ -29,8 +29,13 @@
         <div class="input-cushion" />
         <input class="ai-submit" type="submit" value="Enter">
       </form>
-      <div class="a-answer" v-else>
-        {{ quiz.answer }}
+      <div class="a-solved" v-on:click="answerCovered=!answerCovered">
+        <div class="as-cover" v-if="answerCovered === true" >
+          show
+        </div>
+        <div class="as-answer" v-else >
+          {{ quiz.answer }}
+        </div>
       </div>
     </div>
     <div class="comment-area">
@@ -73,6 +78,7 @@ export default {
       },
       quiz: {},
       answer: '',
+      answerCovered: false,
       comments: [],
       numOfComments: 20,
       commentTextarea: '',
@@ -308,8 +314,24 @@ export default {
       }
 
     } //a-input
-    .a-answer{
+    .a-solved{
+      min-width: 9rem;
+      padding: 0.1rem 0.5rem;
+      border: none;
+      border-radius: 1rem;
+
       text-align: center;
+      font-size: 1rem;
+      background:none;
+      background-color: #EEF1F6;
+      outline: none;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+      .as-cover{
+        //
+      }
+      .as-answer{
+        text-align: center;
+      }
     }
   } // answer-area
 
@@ -340,7 +362,7 @@ export default {
         flex-basis: 3rem;
         min-width: 0; // override min-width: auto
         
-        padding: 0 0.5rem;
+        padding: 0 0.25rem;
         border: none;
         border-radius: 0;
 
