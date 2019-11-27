@@ -29,7 +29,7 @@
         <div class="input-cushion" />
         <input class="ai-submit" type="submit" value="Enter">
       </form>
-      <div class="a-solved" v-on:click="answerCovered=!answerCovered">
+      <div class="a-solved" v-else v-on:click="answerCovered=!answerCovered">
         <div class="as-cover" v-if="answerCovered === true" >
           show
         </div>
@@ -78,7 +78,7 @@ export default {
       },
       quiz: {},
       answer: '',
-      answerCovered: false,
+      answerCovered: true,
       comments: [],
       numOfComments: 20,
       commentTextarea: '',
