@@ -161,7 +161,7 @@ export default {
       this.fullName = ''
       this.bank = ''
       this.account = ''
-      var result=await axios.patch(url,{body})
+      var result=await axios.patch(url,body)
       if(result.data==200)
       {
         alert("정상 입력되었습니다. 상금은 하루안에 지급될 예정입니다.");
