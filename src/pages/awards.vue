@@ -12,15 +12,15 @@
           </div>
           <div class="awd-content-wrapper" >
             <div class="awd-title">이름</div>
-            <input class="awd-titleTextArea" type="text" v-model="name" required maxlength="80">
+            <input class="awd-titleTextArea" type="text" v-model="fullName" required maxlength="80">
           </div>
           <div class="awd-content-wrapper" >
             <div class="awd-title">은행</div>
-            <input class="awd-titleTextArea" type="text" v-model="accountName" required maxlength="80">
+            <input class="awd-titleTextArea" type="text" v-model="bank" required maxlength="80">
           </div>
           <div class="awd-content-wrapper" >
             <div class="awd-title">계좌번호</div>
-            <input class="awd-titleTextArea" type="text" v-model="accountNumber" required maxlength="80">
+            <input class="awd-titleTextArea" type="text" v-model="account" required maxlength="80">
           </div>
           <div class="awd-content-wrapper" >
             <div class="awd-informationTextArea">
@@ -142,28 +142,34 @@ export default {
       baseURL: {
         db : 'https://db.api.quizlunch.com'
       },
-      name:'',
-      accountName: '',
-      accountNumber:''
+      fullName:'',
+      bank: '',
+      account:''
     }
   },
   methods: {
     async updateWinner(){
       const url = `${this.baseURL['db']}/winner/`
       var body = {
-        name: "",
-        accountName: '',
-        accountNumber:''
+        fullName: "",
+        bank: '',
+        account:''
       }
-      body['name'] = this.name
-      body['accountName'] = this.accountName
-      body['accountNumber'] = this.accountNumber
-      this.name = ''
-      this.accountName = ''
-      this.accountNumber = ''
-      var result=await axios.patch(url, body)
-      alert("정상 입력되었습니다. 상금은 하루안에 지급될 예정입니다.");
-      // alert("정답자 본인이 아닙니다.");
+      body['fullName'] = this.fullName
+      body['bank'] = this.bank
+      body['account'] = this.account
+      this.fullName = ''
+      this.bank = ''
+      this.account = ''
+      var result=await axios.patch(url,{body})
+      if(result.data==200)
+      {
+        alert("정상 입력되었습니다. 상금은 하루안에 지급될 예정입니다.");
+      }
+      else
+      {
+        alert("정상 입력이 아닙니다.");
+      }
       location.href='http://quizlunch.com';
 
     }

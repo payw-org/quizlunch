@@ -79,8 +79,14 @@ export default {
       this.answer = ''
       this.masterKey = ''
       var result = await axios.post(url, body)
-      alert("퀴즈가 생성 되었습니다");
-      // alert("비밀번호가 틀립니다");
+      if(result.data=200)
+      {
+        alert("퀴즈가 생성 되었습니다");
+      }
+      else
+      {
+        alert("비밀번호가 틀립니다");
+      }
     }
     
   }
