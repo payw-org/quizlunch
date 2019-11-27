@@ -5,14 +5,12 @@
     </div>
     
     <div class="quiz-area">
-      <div class="quiz-left">
-
-      </div>
+      <!-- <div class="quiz-left" /> -->
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title"> {{ quiz.title}} </div>
-          <div class="qt-money">19999 ￦</div>
+          <div class="qt-title"> {{ quiz.title }} </div>
+          <div class="qt-money">{{ quiz.money }}</div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
@@ -23,16 +21,22 @@
           - made by Quizlunch
         </div>
       </div>
-      <div class="quiz-right">
-
-      </div>
+      <!-- <div class="quiz-right" /> -->
     </div>
     <div class="answer-area">
-      <form class="a-input" v-on:submit.prevent="postAnswer();">
+      <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
         <input class="ai-textarea" type="textarea" v-model="answerTextarea" required maxlength="80">
         <div class="input-cushion" />
         <input class="ai-submit" type="submit" value="Enter">
-      </form> 
+      </form>
+      <div class="a-solved" v-else v-on:click="answerCovered=!answerCovered">
+        <div class="as-cover" v-if="answerCovered === true" >
+          show
+        </div>
+        <div class="as-answer" v-else >
+          {{ quiz.answer }}
+        </div>
+      </div>
     </div>
     <div class="comment-area">
       <form class="c-input" v-on:submit.prevent="postComment();">
@@ -49,7 +53,7 @@
             <div class="comment-time">{{ comment.time }}</div>
             <div class="comment-ip">{{ comment.ip }}.***.***</div>
             <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
-              <div class="cd-button" type="button"/>
+              <!-- <div class="cd-button" type="button"/> -->
             </form>
           </div>
           <div class="comment-context">{{ comment.text }}</div>
@@ -66,73 +70,110 @@ export default {
   name: 'quizlunch_main',
   data() {
     return {
+      ws: '',
       baseURL: {
         db : 'https://db.api.quizlunch.com',
         rng : 'https://rng.api.quizlunch.com',
         db_ws: 'wss://db2.api.quizlunch.com'
       },
-      quizID: 1,
-      quiz: '',
+      quiz: {},
+      answer: '',
+      answerCovered: true,
       comments: [],
+      numOfComments: 20,
       commentTextarea: '',
       commentPassword: '',
-      answerTextarea: ''
+      answerTextarea: '',
+      busy: false
     }
   },
   mounted(){
-    this.connectWS()
+    this.initWS()
   },
   methods: {
+    async initWS(){
+      this.ws = new WebSocket(this.baseURL['db_ws'])
+      this.onOpenWS()
+      this.onMessageWS()
+      this.onErrorWS()
+      this.onCloseWS()
+    },
+    async onOpenWS(){
+      this.ws.onopen = (event)=>{
+        console.log('connected')
+      }
+    },
+    async onMessageWS(){
+      this.ws.onmessage = (event)=>{  
+        var result = JSON.parse(event.data)
+        if(result['renew comments']){
+          this.comments = result['renew comments']
+        }
+        if(result['insert comment']){
+          console.log(result['insert comment'].commentID)
+          this.comments = [result['insert comment']].concat(this.comments)
+          this.comments = this.comments.slice(0,this.numOfComments)
+        }
+        if(result['delete comment']){
+          for(var i=0; i<this.comments.lenght; i++){
+            if(this.comments[i]['commentID'] == result['delete comment'])
+              this.comments = this.comments.splice(i, 1)
+          }
+        }
+        if(result['renew quiz']){
+          this.quiz = result['renew quiz']
+        }
+        if(result['renew money']){
+          if(this.quiz['quizID'] === result['renew money']['quizID'] && this.quiz['gotAnswer'] === 0)
+            this.quiz.money = result['renew money']['value']
+        }
+      }
+    },
+    async onErrorWS(){
+      this.ws.onerror = (event)=>{
+        console.log("Sever error message :" + event.data )
+      }
+    },
+    async onCloseWS(){
+      this.ws.onclose = (event)=>{
+        console.log("Sever closed")
+        this.ws = new WebSocket(this.baseURL['db_ws'])
+      }
+    },
+    //
+    // REST API
+    //
     async postComment(){
-      const url = `${this.baseURL['db']}/comment/`
-      var body = {
-        quizID: '',
-        nickname: '',
-        text: '',
-        password: ''
-      }//quizID need to fix
-      body['quizID'] = this.quizID
-      body['text'] = this.commentTextarea
-      body['password'] = this.commentPassword
+      if(this.commentTextarea.trim().length < 3)
+        return
+      const url = `${this.baseURL['db']}/comment`
+      const body = {
+        quizID: this.quiz.quizID,
+        text: this.commentTextarea,
+        password: this.commentPassword
+      }
       this.commentTextarea = ''
       await axios.post(url, body)
     },
-    async postAnswer(){ // need to fix
-      const url = `${this.baseURL['db']}/${this.quizID}/${this.answerTextarea}`
-      this.answerTextarea = ''
-      await axios.get(url,(data)=>{
-        console.log(data)
-      })
+    async moreComments(){
+      const url = `${this.baseURL['db']}/comment/more`
+      const body = {
+        params: {
+          quizID: this.quiz.quizID,
+          numOfComments: this.numOfComments,
+        }
+      }
+      const result = await axios.get(url, body)
+      this.comments = this.comments.concat(result.data)
+      this.numOfComments += 20
     },
-    async connectWS(){
-      var ws = new WebSocket(this.baseURL['db_ws'])
-
-      ws.onopen = (event)=>{
-        console.log('connected')
-      }
-
-      ws.onmessage = (event)=>{
-        var result = JSON.parse(event.data)
-        console.log(result)
-        if(result.comments){
-          this.comments = result.comments
-          console.log('get comments')
-        }
-        if(result.quiz){
-          this.quiz = result.quiz
-          console.log(this.quiz)
-          console.log('get quiz')
-        }
-      }
-
-      ws.onerror = (event)=>{
-        console.log("Sever error message :" + event.data )
-      }
-      ws.onclose = (event)=>{
-        console.log("Sever closed")
-        ws = new WebSocket(this.baseURL['db_ws'])
-      }
-    }
+    async postAnswer(){ // need to fix
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
+      this.answerTextarea = ''
+      
+      const result = await axios.get(url)
+      console.log(result.data)
+    } // get signal
   }
 }
 </script>
@@ -165,18 +206,18 @@ export default {
       height:2rem;
       width:2rem;
 
-      border: 0.3rem solid #616161;
-      border-radius: 1rem;
-      margin: auto 0.5rem;   
+      margin: auto 0.5rem;
+      background: url('~assets/img/left.svg') no-repeat;
+      background-size: contain;
     }
     .quiz-right {
       flex-basis: 2rem;
       height:2rem;
       width:2rem;
 
-      border: 0.3rem solid #616161;
-      border-radius: 1rem;
-      margin: auto 0.5rem;  
+      margin: auto 0.5rem;
+      background: url('~assets/img/right.svg') no-repeat;
+      background-size:contain;
     }
     .quiz-wrapper {
       
@@ -186,9 +227,11 @@ export default {
 
       text-align: center;
 
-      // border: 3px solid #616161; // devl
+      margin: 0 0.5rem;
       border-radius: 1rem;
-      background: radial-gradient(63.13% 94.45% at 18.96% 20.51%, #FFFFFF 0%, #EEEEEE 100%);
+      background: #EEF1F6;
+      background-size: cover;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
         flex: 1;
         display: flex;
@@ -219,9 +262,9 @@ export default {
           align-items: center;
           justify-content: center;
 
-          .qm-content {
+          // .qm-content {
 
-          }
+          // }
 
         }
       }
@@ -240,22 +283,27 @@ export default {
   } // quiz-area
 
   .answer-area{
+    display: flex;
+    justify-content: center;
+
     padding-bottom: 2rem;
     .a-input {
       display: flex;
-      
-      margin: 0 8rem;
+      width: 9rem;
       .ai-textarea {
         flex: auto;
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 3px solid #616161;
-        border-right: 0px solid #616161;
+        border: none;
         border-radius: 1rem 0 0 1rem;
+
         font-size: 1rem;
+        font-family: inherit;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ai-submit {
@@ -263,18 +311,38 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 3px solid #616161;
+        border: none;
         border-radius: 0 1rem 1rem 0;
 
-        background:none;
         text-align: center;
         font-size: 0.8rem;
+        background:none;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
     } //a-input
+    .a-solved{
+      min-width: 9rem;
+      padding: 0.1rem 0.5rem;
+      border: none;
+      border-radius: 1rem;
+
+      text-align: center;
+      font-size: 1rem;
+      background:none;
+      background-color: #EEF1F6;
+      outline: none;
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+      .as-cover{
+        //
+      }
+      .as-answer{
+        text-align: center;
+      }
+    }
   } // answer-area
 
   .comment-area {
@@ -289,25 +357,30 @@ export default {
         min-width: 0; // override min-width: auto
         
         padding-left: 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 3px solid #616161;
-        border-right: 0px solid #616161;
+        border: none;
         border-radius: 1rem 0 0 1rem;
+
         font-size: 1rem;
+        font-family: inherit;
+        background: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ci-password {
         flex-basis: 3rem;
         min-width: 0; // override min-width: auto
         
-        padding: 0 0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 0px solid #616161;
+        padding: 0 0.25rem;
+        border: none;
         border-radius: 0;
+
+        background: #EEF1F6;
         font-size: 1rem;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
       .ci-submit {
@@ -315,15 +388,16 @@ export default {
         
         padding-left:0.3rem;
         padding-right:0.5rem;
-        border-top: 3px solid #616161;
-        border-bottom: 3px solid #616161;
-        border-left: 0px solid #616161;
-        border-right: 3px solid #616161;
+        border: none;
         border-radius: 0 1rem 1rem 0;
 
-        background:none;
         text-align: center;
         font-size: 0.8rem;
+        background:none;
+        background-color: #EEF1F6;
+        outline: none;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        -webkit-appearance: none; // safari default input style
       }
 
     }
@@ -335,9 +409,10 @@ export default {
         padding: 0.3rem 0;
         margin-top: 0.5rem;
         border-radius: 10px;
-        background-color: #EFEFEF;
-        align-items: center;
 
+        align-items: center;
+        background: #D3DAE6;
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
         .comment-info {
           display: flex;
           .comment-nickname {
@@ -351,12 +426,12 @@ export default {
             flex: auto;
 
             font-size: 0.7rem;
-            color: #AAAAAA;
+            color: #888;
             text-align: left;
           }
           .comment-ip {
             flex-basis: 6rem;
-            color: #EFEFEF;
+            color: #D3DAE6;
             font-size: 0.7rem;
           }
           .comment-delete {
@@ -386,8 +461,8 @@ export default {
   } //comment-area
 
   .input-cushion {
-    border-left: 1px solid #616161;
-    border-right: 1px solid #616161;
+    border-left: 0.5px solid #BFC7D5;
+    border-right: 0.5px solid #BFC7D5;
   }
 }
 </style>
