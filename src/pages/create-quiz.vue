@@ -104,6 +104,7 @@ export default {
     text-align: center; //dev
     font-size: 2.5rem;
     font-weight: 600;
+    
     .logo {
       display: inline-block;
       width: 2.5rem;
