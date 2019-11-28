@@ -65,15 +65,14 @@
 
 <script>
 import axios from 'axios'
-import VueAnalytics from 'vue-analytics'
+
 import cfg from '../config/config'
-Vue.prototype.$cfg = cfg
+import Vue from 'vue'
+import VueAnalytics from 'vue-analytics'
+
 Vue.use(VueAnalytics, {
   id: cfg.analyticsID,
-  router,
-  autoTracking: {
-    pageviewOnLoad: false
-  }
+  checkDuplicatedScript: true
 })
 
 
