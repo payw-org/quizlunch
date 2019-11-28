@@ -8,6 +8,7 @@
 html {
   max-width: 40rem;
   margin: 0 auto;
+  margin-bottom: 1rem;
   font-family: 'PAYW Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-weight: 400;
   font-size: 16px;
