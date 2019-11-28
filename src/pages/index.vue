@@ -169,14 +169,11 @@ export default {
         }
       }
       this.loading = true
-      await setTimeout(async ()=>{
-        const result = await axios.get(url, body)
-        this.loading = false
-        this.comments = this.comments.concat(result.data)
-        this.numOfComments += 20
-        this.busy = false
-      },2000)
-
+      const result = await axios.get(url, body)
+      this.loading = false
+      this.comments = this.comments.concat(result.data)
+      this.numOfComments += 20
+      this.busy = false
     },
     async postAnswer(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
