@@ -155,7 +155,7 @@ export default {
         bank: '',
         account:''
       }
-      
+
       body['fullName'] = this.fullName
       body['bank'] = this.bank
       body['account'] = this.account
@@ -189,7 +189,6 @@ export default {
     font-size: 2.5rem;
     font-weight: 600;
     align-content: center;
-    text-align: center; //dev
     .logo {
       display: inline-block;
       width: 2.5rem;
@@ -232,7 +231,6 @@ export default {
 
         .awd-welcome {
           text-align: center;
-          width:30rem;
           font-size: 2rem;
           @include border-style;
           background: #D3DAE6;
@@ -253,7 +251,6 @@ export default {
         
         .awd-information {
           text-align: center;
-          width:15rem;
           font-size: 2rem;
           @include border-style;
           background: #D3DAE6;
