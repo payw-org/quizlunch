@@ -24,7 +24,10 @@
     "restart-dev": "npm run stop-dev && npm run start-dev",
     "start-dev-hcj": "pm2 start npm --name 'web-dev-hcj' -- run dev-hcj",
     "stop-dev-hcj": "pm2 delete web-dev-hcj",
-    "restart-dev-hcj": "npm run stop-dev-hcj && npm run start-dev-hcj"
+    "restart-dev-hcj": "npm run stop-dev-hcj && npm run start-dev-hcj",
+    "start-dev-wsj": "pm2 start npm --name 'web-dev-wsj' -- run dev-wsj",
+    "stop-dev-wsj": "pm2 delete web-dev-wsj",
+    "restart-dev-wsj": "npm run stop-dev-wsj && npm run start-dev-wsj"
   },
   "dependencies": {
     "axios": "^0.19.0",

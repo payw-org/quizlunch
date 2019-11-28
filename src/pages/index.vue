@@ -10,7 +10,7 @@
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
           <div class="qt-title"> {{ quiz.title }} </div>
-          <div class="qt-money">{{ quiz.money }}</div>
+          <div class="qt-money">{{ quiz.money }} &#8361;</div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
