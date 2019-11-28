@@ -155,13 +155,14 @@ export default {
         bank: '',
         account:''
       }
+
       body['fullName'] = this.fullName
       body['bank'] = this.bank
       body['account'] = this.account
       this.fullName = ''
       this.bank = ''
       this.account = ''
-      var result=await axios.patch(url,{body})
+      var result=await axios.patch(url,body)
       if(result.data==200)
       {
         alert("정상 입력되었습니다. 상금은 하루안에 지급될 예정입니다.");
@@ -187,6 +188,7 @@ export default {
     text-align: center; //dev
     font-size: 2.5rem;
     font-weight: 600;
+    align-content: center;
     .logo {
       display: inline-block;
       width: 2.5rem;
@@ -209,6 +211,7 @@ export default {
       display: flex;
       flex-direction: column;
 
+      padding: 1.5rem;
       text-align: center;
 
       // border: 3px solid #616161; // devl
@@ -216,25 +219,18 @@ export default {
       // background: radial-gradient(63.13% 94.45% at 18.96% 20.51%, #FFFFFF 0%, #EEEEEE 100%);
       background: #EEF1F6;
       @mixin border-style {
-        // border-top: 3px solid #616161;
-        // border-bottom: 3px solid #616161;
-        // border-left: 3px solid #616161;
-        // border-right: 3px solid #616161;
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
         font-size: 1rem;
         border-radius: 10px;
-        
       }
       
       .middle {
         flex: 1;
         padding: 0.5rem 0;
-        margin: 0 5rem;
 
         .awd-welcome {
           text-align: center;
-          width:30rem;
           font-size: 2rem;
           @include border-style;
           background: #D3DAE6;
@@ -245,19 +241,16 @@ export default {
           text-align: center;
           @include border-style;
           background: #D3DAE6;
-          margin-left: 5rem;
           margin-right: 1rem;
         }
         .awd-titleTextArea {
           flex: 4;
           text-align: center;
           @include border-style;
-          margin-right: 5rem;
         }
         
         .awd-information {
           text-align: center;
-          width:15rem;
           font-size: 2rem;
           @include border-style;
           background: #D3DAE6;
@@ -266,7 +259,6 @@ export default {
           flex: auto;
           text-align: justify;
           height: 10rem;
-          // width: 60rem;
           width: calc(100% - 2rem);
           max-width: 50rem;
           background: #ffffff;
@@ -279,9 +271,6 @@ export default {
           min-height: 1rem;
           align-items: stretch;
           justify-content: center;
-          max-width: 60rem;
-          margin-left: auto;
-          margin-right: auto;
           .qm-content {
 
           }
@@ -306,7 +295,6 @@ export default {
         flex: 1;
 
         padding: 0.5rem 0;
-        margin: 0 1rem;
 
         color: #999;
         font-size: 0.5rem;

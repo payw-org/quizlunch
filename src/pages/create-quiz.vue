@@ -99,9 +99,12 @@ export default {
   // padding: 0 3rem;
   .title {
     padding: 1.5rem 0;
+    margin: 0 auto;
+    align-content: center;
     text-align: center; //dev
     font-size: 2.5rem;
     font-weight: 600;
+    
     .logo {
       display: inline-block;
       width: 2.5rem;
@@ -124,17 +127,15 @@ export default {
       display: flex;
       flex-direction: column;
 
+      padding: 1.5rem;
+
       text-align: center;
 
       // border: 3px solid #616161; // devl
       border-radius: 1rem;
-      // background: radial-gradient(63.13% 94.45% at 18.96% 20.51%, #FFFFFF 0%, #EEEEEE 100%);
       background: #EEF1F6;
       @mixin border-style {
-        // border-top: 3px solid #616161;
-        // border-bottom: 3px solid #616161;
-        // border-left: 3px solid #616161;
-        // border-right: 3px solid #616161;
+
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
         font-size: 1rem;
@@ -145,21 +146,21 @@ export default {
       .middle {
         flex: 1;
         padding: 0.5rem 0;
-        margin: 0 5rem;
+        // margin: 0 5rem;
         
          .qt-title {
           flex: 1;
           text-align: center;
           @include border-style;
           background: #D3DAE6;
-          margin-left: 5rem;
+          // margin-left: 5rem;
           margin-right: 1rem;
         }
         .qt-titleTextArea {
           flex: 4;
           text-align: center;
           @include border-style;
-          margin-right: 5rem;
+          // margin-right: 5rem;
         }
         .qt-information {
           text-align: center;
@@ -223,7 +224,7 @@ export default {
         flex: 1;
 
         padding: 0.5rem 0;
-        margin: 0 1rem;
+        // margin: 0 1rem;
 
         color: #999;
         font-size: 0.5rem;

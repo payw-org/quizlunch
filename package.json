@@ -34,9 +34,11 @@
     "sass-loader": "^8.0.0",
     "url-loader": "^2.2.0",
     "vue-infinite-scroll": "^2.0.2",
+    "vue-analytics": "^5.18.0",
     "ws": "^7.2.0"
   },
   "devDependencies": {
+    "@nuxtjs/google-analytics": "^2.2.1",
     "cross-env": "^6.0.3"
   }
 }
