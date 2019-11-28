@@ -29,8 +29,7 @@ export default {
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: [
-  ],
+  plugins: ['~plugins/vue-infinite-scroll'],
   /*
   ** Nuxt.js dev-modules
   */
@@ -49,9 +48,10 @@ export default {
   ** Build configuration
   */
   build: {
-    /*
-    ** You can extend webpack config here
-    */
+    filenames: {
+      app: ({ isDev }) => isDev ? '[name].[hash].js' : '[chunkhash].js',
+      chunk: ({ isDev }) => isDev ? '[name].[hash].js' : '[chunkhash].js'
+    },
     extend(config) {
       const svgRule = config.module.rules.find(rule =>
         rule.test.test('.svg')

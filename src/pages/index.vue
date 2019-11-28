@@ -46,7 +46,7 @@
         <div class="input-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
-      <div class="c-container">
+      <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
         <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
           <div class="comment-info">
             <div class="comment-nickname">{{ comment.nickname }}</div>
@@ -58,6 +58,7 @@
           </div>
           <div class="comment-context">{{ comment.text }}</div>
         </div>
+        <div class='loader' v-if="loading"/> 
       </div>
     </div>
   </div>
@@ -84,11 +85,15 @@ export default {
       commentTextarea: '',
       commentPassword: '',
       answerTextarea: '',
-      busy: false
+      busy: true,
+      loading: false
     }
   },
   mounted(){
     this.initWS()
+    setTimeout(()=>{
+      this.busy = false
+    },1000)
   },
   methods: {
     async initWS(){
@@ -136,7 +141,6 @@ export default {
     async onCloseWS(){
       this.ws.onclose = (event)=>{
         console.log("Sever closed")
-        this.ws = new WebSocket(this.baseURL['db_ws'])
       }
     },
     //
@@ -155,6 +159,8 @@ export default {
       await axios.post(url, body)
     },
     async moreComments(){
+      console.log('more')
+      this.busy = true
       const url = `${this.baseURL['db']}/comment/more`
       const body = {
         params: {
@@ -162,9 +168,12 @@ export default {
           numOfComments: this.numOfComments,
         }
       }
+      this.loading = true
       const result = await axios.get(url, body)
+      this.loading = false
       this.comments = this.comments.concat(result.data)
       this.numOfComments += 20
+      this.busy = false
     },
     async postAnswer(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
@@ -464,6 +473,20 @@ export default {
   .input-cushion {
     border-left: 0.5px solid #BFC7D5;
     border-right: 0.5px solid #BFC7D5;
+  }
+  .loader {
+    margin: 1rem auto;
+    border: 0.2rem solid #f3f3f3; /* Light grey */
+    border-top: 0.2rem solid #000000; /* black */
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 }
 </style>
