@@ -66,16 +66,6 @@
 <script>
 import axios from 'axios'
 
-import cfg from '../config/config'
-import Vue from 'vue'
-import VueAnalytics from 'vue-analytics'
-
-Vue.use(VueAnalytics, {
-  id: cfg.analyticsID,
-  checkDuplicatedScript: true
-})
-
-
 export default {
   name: 'quizlunch_main',
   data() {
