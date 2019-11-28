@@ -65,6 +65,17 @@
 
 <script>
 import axios from 'axios'
+import VueAnalytics from 'vue-analytics'
+import cfg from '../config/config'
+Vue.prototype.$cfg = cfg
+Vue.use(VueAnalytics, {
+  id: cfg.analyticsID,
+  router,
+  autoTracking: {
+    pageviewOnLoad: false
+  }
+})
+
 
 export default {
   name: 'quizlunch_main',
