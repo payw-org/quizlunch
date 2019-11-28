@@ -159,7 +159,6 @@ export default {
       await axios.post(url, body)
     },
     async moreComments(){
-      console.log('more')
       this.busy = true
       const url = `${this.baseURL['db']}/comment/more`
       const body = {
@@ -171,9 +170,16 @@ export default {
       this.loading = true
       const result = await axios.get(url, body)
       this.loading = false
-      this.comments = this.comments.concat(result.data)
-      this.numOfComments += 20
-      this.busy = false
+      if(result.data.length != 0){
+        this.comments = this.comments.concat(result.data)
+        this.numOfComments += 20
+        this.busy = false
+      }
+      else{
+        setTimeout(()=>{
+          this.busy = false
+        },10000)
+      }
     },
     async postAnswer(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
