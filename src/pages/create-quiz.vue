@@ -79,7 +79,7 @@ export default {
       this.answer = ''
       this.masterKey = ''
       var result = await axios.post(url, body)
-      if(result.data=200)
+      if(result.data==200)
       {
         alert("퀴즈가 생성 되었습니다");
       }
