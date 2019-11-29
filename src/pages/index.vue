@@ -5,7 +5,6 @@
     </div>
     
     <div class="quiz-area">
-      <!-- <div class="quiz-left" /> -->
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
@@ -17,15 +16,20 @@
           </div>
         </div>
         <div class="middle">
+          <div class="quiz-move">
+            <div class="quiz-left" v-if="!isFirst" />
+          </div>
           <div class="qm-content-wrapper" >
             <div class="qm-content">{{ quiz.information }}</div>
+          </div>
+          <div class="quiz-move">
+            <div class="quiz-right" v-if="!isLast" />
           </div>
         </div>
         <div class="bottom">
           - made by Quizlunch
         </div>
       </div>
-      <!-- <div class="quiz-right" /> -->
     </div>
     <div class="answer-area">
       <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
@@ -90,7 +94,9 @@ export default {
       commentPassword: '',
       answerTextarea: '',
       busy: true,
-      loading: false
+      loading: false,
+      isFirst: false,
+      isLast: true
     }
   },
   computed: {
@@ -249,24 +255,7 @@ export default {
     display: flex;
     align-content: center;
     padding-bottom: 0.5rem;
-    .quiz-left {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
 
-      margin: auto 0.5rem;
-      background: url('~assets/img/left.svg') no-repeat;
-      background-size: contain;
-    }
-    .quiz-right {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
-
-      margin: auto 0.5rem;
-      background: url('~assets/img/right.svg') no-repeat;
-      background-size:contain;
-    }
     .quiz-wrapper {
       
       flex: auto;
@@ -281,7 +270,7 @@ export default {
       background-size: cover;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
-        flex: 1;
+        flex-basis: 2rem;
         display: flex;
 
         padding: 0.5rem 0;
@@ -317,9 +306,30 @@ export default {
       }
       
       .middle {
-        flex: 1;
-
+        flex: auto;
+        display: flex;
+        
+        align-items: center;
+        .quiz-move {
+          flex-basis: 2.5rem;
+          height:2.5rem;
+          width:2.5rem;
+          
+          .quiz-left {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/left.svg') no-repeat;
+            background-size: cover;
+          }
+          .quiz-right {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/right.svg') no-repeat;
+            background-size: cover;
+          }
+        }
         .qm-content-wrapper {
+          flex: auto;
           display: flex;
           min-height: 10rem;
           align-items: center;
@@ -333,7 +343,7 @@ export default {
       }
 
       .bottom {
-        flex: 1;
+        flex-basis: 1rem;
 
         padding: 0.5rem 0;
         margin: 0 1rem;
