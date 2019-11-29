@@ -10,7 +10,11 @@
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
           <div class="qt-title"> {{ quiz.title }} </div>
-          <div class="qt-money">{{ quizMoney }} &#8361;</div>
+          <div class="qt-money">
+            <div class="qt-money-int">{{ quizMoneyInt }}.</div>
+            <div class="qt-money-float">{{ quizMoneyFloat }}</div>
+            <div class="qt-money-unit">&#8361;</div>
+          </div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
@@ -90,9 +94,15 @@ export default {
     }
   },
   computed: {
-    quizMoney(){
+    quizMoneyInt(){
       if(this.quiz.money)
-        return (this.quiz.money).toFixed(3)
+        return parseInt(this.quiz.money)
+    },
+    quizMoneyFloat(){
+      if(this.quiz.money){
+        var intLen = parseInt(this.quiz.money).toString().length
+        return ((this.quiz.money).toFixed(3)).toString().slice(intLen+1)
+      }
     }
   },
   mounted(){
@@ -284,10 +294,25 @@ export default {
         .qt-money {
           flex-basis: 6rem;
 
-          // border-left: 1px solid #616161;
-
+          font-size: 0;
           text-align: right;
-          font-size: 0.9rem;
+          & * {
+            font-size: initial;
+          }
+          
+          .qt-money-int{
+            display: inline-block;
+          }
+          
+          .qt-money-float{
+            display: inline-block;
+            font-size: 0.85rem;
+          }
+
+          .qt-money-unit{
+            display: inline-block;
+            padding-left: 0.3rem;
+          }
         }
       }
       
