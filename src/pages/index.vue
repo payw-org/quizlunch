@@ -17,13 +17,13 @@
         </div>
         <div class="middle">
           <div class="quiz-move">
-            <div class="quiz-left" v-if="!isFirst" />
+            <div class="quiz-left" v-if="!isFirst" v-on:click="previousQuiz();" />
           </div>
           <div class="qm-content-wrapper" >
             <div class="qm-content">{{ quiz.information }}</div>
           </div>
           <div class="quiz-move">
-            <div class="quiz-right" v-if="!isLast" />
+            <div class="quiz-right" v-if="!isLast" v-on:click="nextQuiz();"/>
           </div>
         </div>
         <div class="bottom">
@@ -117,8 +117,6 @@ export default {
     setTimeout(()=>{
       this.busy = false
     },1000)
-
-
   },
   methods: {
     calcMoney(){
@@ -127,9 +125,12 @@ export default {
       var totalPrize = totalSecond/20
       var moneyPerSecond = totalPrize / totalSecond
       var moneyPerTick = parseFloat(moneyPerSecond/(1000/tick))
-      setInterval(()=>{
-        this.quiz.money += moneyPerTick
-      }, tick)
+      // if(this.quiz.gotAnswer === 0){
+        setInterval(()=>{
+          if(this.isLast === true)
+            this.quiz.money += moneyPerTick
+        }, tick)
+      // }
     },
     //
     // WebSocket
@@ -227,6 +228,31 @@ export default {
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
       }
+    },
+    async previousQuiz(){
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/previous`
+      
+      const result = await axios.get(url)
+      if(result.data){
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        console.log(result.data.isFirst)
+        console.log(result.data.isLast)
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+      }
+    },
+    async nextQuiz(){
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/next`
+      
+      const result = await axios.get(url)
+      if(result.data){
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+      }
+
     }
   }
 }
