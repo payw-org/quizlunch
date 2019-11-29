@@ -10,7 +10,7 @@
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
           <div class="qt-title"> {{ quiz.title }} </div>
-          <div class="qt-money">{{ quiz.money }} &#8361;</div>
+          <div class="qt-money">{{ quizMoney }} &#8361;</div>
         </div>
         <div class="middle">
           <div class="qm-content-wrapper" >
@@ -89,13 +89,35 @@ export default {
       loading: false
     }
   },
+  computed: {
+    quizMoney(){
+      if(this.quiz.money)
+        return (this.quiz.money).toFixed(3)
+    }
+  },
   mounted(){
     this.initWS()
+    this.calcMoney()
     setTimeout(()=>{
       this.busy = false
     },1000)
+
+
   },
   methods: {
+    calcMoney(){
+      var tick = 33
+      var totalSecond = 24*60*60
+      var totalPrize = totalSecond/20
+      var moneyPerSecond = totalPrize / totalSecond
+      var moneyPerTick = parseFloat(moneyPerSecond/(1000/tick))
+      setInterval(()=>{
+        this.quiz.money += moneyPerTick
+      }, tick)
+    },
+    //
+    // WebSocket
+    //
     async initWS(){
       this.ws = new WebSocket(this.baseURL['db_ws'])
       this.onOpenWS()
