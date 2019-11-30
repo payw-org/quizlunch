@@ -5,7 +5,6 @@
     </div>
     
     <div class="quiz-area">
-      <!-- <div class="quiz-left" /> -->
       <div class="quiz-wrapper">
         <div class="top">
           <!-- <div class="qt-index">#1</div> -->
@@ -17,15 +16,20 @@
           </div>
         </div>
         <div class="middle">
+          <div class="quiz-move">
+            <div class="quiz-left" v-if="!isFirst" v-on:click="previousQuiz();" />
+          </div>
           <div class="qm-content-wrapper" >
             <div class="qm-content">{{ quiz.information }}</div>
+          </div>
+          <div class="quiz-move">
+            <div class="quiz-right" v-if="!isLast" v-on:click="nextQuiz();"/>
           </div>
         </div>
         <div class="bottom">
           - made by Quizlunch
         </div>
       </div>
-      <!-- <div class="quiz-right" /> -->
     </div>
     <div class="answer-area">
       <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
@@ -43,7 +47,7 @@
       </div>
     </div>
     <div class="comment-area">
-      <form class="c-input" v-on:submit.prevent="postComment();">
+      <form class="c-input" v-if="isLast" v-on:submit.prevent="postComment();">
         <input class="ci-textarea" type="textarea" v-model="commentTextarea" required minlength="2" maxlength="80">
         <div class="input-cushion" />
         <input class="ci-password" type="password" v-model="commentPassword" required minlength="4">
@@ -90,7 +94,9 @@ export default {
       commentPassword: '',
       answerTextarea: '',
       busy: true,
-      loading: false
+      loading: false,
+      isFirst: false,
+      isLast: true
     }
   },
   computed: {
@@ -111,8 +117,6 @@ export default {
     setTimeout(()=>{
       this.busy = false
     },1000)
-
-
   },
   methods: {
     calcMoney(){
@@ -122,7 +126,8 @@ export default {
       var moneyPerSecond = totalPrize / totalSecond
       var moneyPerTick = parseFloat(moneyPerSecond/(1000/tick))
       setInterval(()=>{
-        this.quiz.money += moneyPerTick
+        if(this.isLast === true && this.quiz.gotAnswer === 0)
+          this.quiz.money += moneyPerTick
       }, tick)
     },
     //
@@ -221,6 +226,29 @@ export default {
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
       }
+    },
+    async previousQuiz(){
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/previous`
+      
+      const result = await axios.get(url)
+      if(result.data){
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+      }
+    },
+    async nextQuiz(){
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/next`
+      
+      const result = await axios.get(url)
+      if(result.data){
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+      }
+
     }
   }
 }
@@ -249,24 +277,7 @@ export default {
     display: flex;
     align-content: center;
     padding-bottom: 0.5rem;
-    .quiz-left {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
 
-      margin: auto 0.5rem;
-      background: url('~assets/img/left.svg') no-repeat;
-      background-size: contain;
-    }
-    .quiz-right {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
-
-      margin: auto 0.5rem;
-      background: url('~assets/img/right.svg') no-repeat;
-      background-size:contain;
-    }
     .quiz-wrapper {
       
       flex: auto;
@@ -281,7 +292,7 @@ export default {
       background-size: cover;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
-        flex: 1;
+        flex-basis: 2rem;
         display: flex;
 
         padding: 0.5rem 0;
@@ -306,6 +317,8 @@ export default {
           
           .qt-money-float{
             display: inline-block;
+            width: 1.5rem;
+            text-align: left;
             font-size: 0.85rem;
           }
 
@@ -317,9 +330,30 @@ export default {
       }
       
       .middle {
-        flex: 1;
-
+        flex: auto;
+        display: flex;
+        
+        align-items: center;
+        .quiz-move {
+          flex-basis: 2.5rem;
+          height:2.5rem;
+          width:2.5rem;
+          
+          .quiz-left {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/left.png') no-repeat;
+            background-size: cover;
+          }
+          .quiz-right {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/right.png') no-repeat;
+            background-size: cover;
+          }
+        }
         .qm-content-wrapper {
+          flex: auto;
           display: flex;
           min-height: 10rem;
           align-items: center;
@@ -333,7 +367,7 @@ export default {
       }
 
       .bottom {
-        flex: 1;
+        flex-basis: 1rem;
 
         padding: 0.5rem 0;
         margin: 0 1rem;

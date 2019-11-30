@@ -60,29 +60,29 @@ export default {
       chunk: ({ isDev }) => isDev ? '[name].[hash].js' : '[chunkhash].js'
     },
     extend(config) {
-      const svgRule = config.module.rules.find(rule =>
-        rule.test.test('.svg')
-      );
+      // const svgRule = config.module.rules.find(rule =>
+      //   rule.test.test('.svg')
+      // );
     
-      svgRule.test = /\.(png|jpe?g|gif|webp)$/;
+      // svgRule.test = /\.(png|jpe?g|gif|webp)$/;
     
-      config.module.rules.push({
-        test: /\.(png|jpe?g|gif|svg|webp)$/,
-        oneOf:[
-          {
-          loader: 'file-loader',
-          query: {
-              name: 'assets/[name].[hash:8].[ext]'
-            }
-          },
-          {
-            loader: 'url-loader',
-            query: {
-              name: 'img/[name].[hash:7].[ext]'
-            }
-          }
-        ]
-      })
+      // config.module.rules.push({
+      //   test: /\.(png|jpe?g|gif|svg|webp)$/,
+      //   oneOf:[
+      //     {
+      //     loader: 'file-loader',
+      //     query: {
+      //         name: '[name].[hash:8].[ext]'
+      //       }
+      //     },
+      //     {
+      //       loader: 'url-loader',
+      //       query: {
+      //         name: '[name].[hash:7].[ext]'
+      //       }
+      //     }
+      //   ]
+      // })
     }
   }
 }
