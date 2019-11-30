@@ -7,8 +7,7 @@
     <div class="quiz-area">
       <div class="quiz-wrapper">
         <div class="top">
-          <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title"> {{ quiz.title }} </div>
+          <div class="qt-title"> <!--{{ quiz.title }}--> </div>
           <div class="qt-money">
             <div class="qt-money-int">{{ quizMoneyInt }}.</div>
             <div class="qt-money-float">{{ quizMoneyFloat }}</div>
@@ -27,7 +26,7 @@
           </div>
         </div>
         <div class="bottom">
-          - made by Quizlunch
+          - made by {{ quiz.author }}
         </div>
       </div>
     </div>
@@ -359,9 +358,9 @@ export default {
           align-items: center;
           justify-content: center;
 
-          // .qm-content {
-
-          // }
+          .qm-content {
+            white-space:pre;
+          }
 
         }
       }
