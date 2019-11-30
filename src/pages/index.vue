@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="comment-area">
-      <form class="c-input" v-on:submit.prevent="postComment();">
+      <form class="c-input" v-if="isLast" v-on:submit.prevent="postComment();">
         <input class="ci-textarea" type="textarea" v-model="commentTextarea" required minlength="2" maxlength="80">
         <div class="input-cushion" />
         <input class="ci-password" type="password" v-model="commentPassword" required minlength="4">
@@ -125,12 +125,10 @@ export default {
       var totalPrize = totalSecond/20
       var moneyPerSecond = totalPrize / totalSecond
       var moneyPerTick = parseFloat(moneyPerSecond/(1000/tick))
-      // if(this.quiz.gotAnswer === 0){
-        setInterval(()=>{
-          if(this.isLast === true)
-            this.quiz.money += moneyPerTick
-        }, tick)
-      // }
+      setInterval(()=>{
+        if(this.isLast === true && this.quiz.gotAnswer === 0)
+          this.quiz.money += moneyPerTick
+      }, tick)
     },
     //
     // WebSocket
@@ -236,8 +234,6 @@ export default {
       if(result.data){
         this.quiz = result.data.quiz
         this.comments = result.data.comments
-        console.log(result.data.isFirst)
-        console.log(result.data.isLast)
         this.isFirst = result.data.isFirst
         this.isLast = result.data.isLast
       }
@@ -321,6 +317,8 @@ export default {
           
           .qt-money-float{
             display: inline-block;
+            width: 1.5rem;
+            text-align: left;
             font-size: 0.85rem;
           }
 
@@ -344,13 +342,13 @@ export default {
           .quiz-left {
             width: inherit;
             height: inherit;
-            background: url('~assets/img/left.svg') no-repeat;
+            background: url('~assets/img/left.png') no-repeat;
             background-size: cover;
           }
           .quiz-right {
             width: inherit;
             height: inherit;
-            background: url('~assets/img/right.svg') no-repeat;
+            background: url('~assets/img/right.png') no-repeat;
             background-size: cover;
           }
         }
