@@ -359,7 +359,7 @@ export default {
           justify-content: center;
 
           .qm-content {
-            white-space:pre;
+            white-space:pre-wrap;
           }
 
         }
