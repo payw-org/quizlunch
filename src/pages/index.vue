@@ -183,7 +183,7 @@ export default {
     // REST API
     //
     async postComment(){
-      if(this.commentTextarea.trim().length < 3)
+      if(this.commentTextarea.trim().length < 2)
         return
       const url = `${this.baseURL['db']}/comment`
       const body = {
