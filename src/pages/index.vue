@@ -56,7 +56,8 @@
             <div class="comment-nickname">{{ comment.nickname }}</div>
             <div class="comment-time">{{ comment.time }}</div>
             <div class="comment-ip">{{ comment.ip }}</div>
-            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
+            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID,commnet.password);">
+              <input class="comment-password" type="password" v-model="comment.password" required minlength="4">
               <div class="cd-button" type="submit" value=""/>
             </form>
           </div>
@@ -189,6 +190,15 @@ export default {
       }
       this.commentTextarea = ''
       await axios.post(url, body)
+    },
+    async deleteComment(commentID,password){
+      const url = `${this.baseURL['db']}/comment`
+      const body = {
+        quizID: this.quiz.quizID,
+        commentID: commentID,
+        password: password
+      }
+      await axios.delete(url,{body})
     },
     async moreComments(){
       this.busy = true

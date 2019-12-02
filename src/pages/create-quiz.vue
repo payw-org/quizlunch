@@ -24,7 +24,7 @@
             <input class="qt-titleTextArea" type="text" v-model="answer" required maxlength="80">
           </div>
           <form class="qm-input" v-on:submit.prevent="postQuiz();">
-            <input class="qm-masterKeyTextArea" type="masterKey" v-model="masterKey" required maxlength="80">
+            <input class="qm-masterKeyTextArea" type="password" v-model="masterKey" required maxlength="80">
             <input class="qm-submit" type="submit" value="Enter">
           </form> 
         </div>
