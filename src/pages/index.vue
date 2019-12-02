@@ -56,10 +56,9 @@
             <div class="comment-nickname">{{ comment.nickname }}</div>
             <div class="comment-time">{{ comment.time }}</div>
             <div class="comment-ip">{{ comment.ip }}</div>
-            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID,commnet.password);">
-              <input class="comment-password" type="password" v-model="comment.password" required minlength="4">
-              <div class="cd-button" type="submit" value=""/>
-            </form>
+            <div class="comment-delete">
+              <input class="cd-button" type="submit" value="" @click="checkPassword(comment.commentID)" />
+            </div>
           </div>
           <div class="comment-context">{{ comment.text }}</div>
         </div>
@@ -90,6 +89,7 @@ export default {
       commentTextarea: '',
       commentPassword: '',
       answerTextarea: '',
+      deletePassword: '',
       busy: true,
       loading: false
     }
@@ -116,6 +116,10 @@ export default {
 
   },
   methods: {
+    checkPassword(commentID) {
+      const password = window.prompt('password를 입력해주세요')
+      this.deleteComment(commentID,password)
+    },
     calcMoney(){
       var tick = 33
       var totalSecond = 24*60*60
@@ -152,9 +156,12 @@ export default {
           this.comments = this.comments.slice(0,this.numOfComments)
         }
         if(result['delete comment']){
-          for(var i=0; i<this.comments.lenght; i++){
+          for(var i=0; i<this.comments.length; i++){
             if(this.comments[i]['commentID'] == result['delete comment'])
-              this.comments = this.comments.splice(i, 1)
+            {
+              this.comments.splice(i, 1)
+              break;
+            }
           }
         }
         if(result['renew quiz']){
@@ -192,13 +199,19 @@ export default {
       await axios.post(url, body)
     },
     async deleteComment(commentID,password){
-      const url = `${this.baseURL['db']}/comment`
-      const body = {
-        quizID: this.quiz.quizID,
-        commentID: commentID,
-        password: password
+      if(password!==null)
+      {
+        const url = `${this.baseURL['db']}/comment`
+        const data = {
+          commentID: commentID,
+          password: password
+        }
+        var result = await axios.delete(url,{data})
+        if(result.data!=200)
+        {
+          alert("비밀번호가 틀립니다");
+        }
       }
-      await axios.delete(url,{body})
     },
     async moreComments(){
       this.busy = true
@@ -478,21 +491,18 @@ export default {
     .c-container {
       margin: 0 0.5rem;
       .cc-comment {
-
         padding: 0.3rem 0;
         margin-top: 0.5rem;
         border-radius: 10px;
 
         align-items: center;
-        background: #D3DAE6;
+        background: #d3dae6;
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
         .comment-info {
           display: flex;
           .comment-nickname {
             flex-basis: auto;
-
             padding: 0 0.5rem;
-           
             font-weight: 400;
           }
           .comment-time {
@@ -503,30 +513,28 @@ export default {
             text-align: left;
           }
           .comment-ip {
-            flex-basis: 6rem;
+            flex-basis: auto;
             color: #D3DAE6;
             font-size: 0.7rem;
+            padding: 0 0.5rem;
+            text-align: right;
           }
           .comment-delete {
-            flex-basis: 1.6rem;
-            padding: 0 0.5rem;
-
+            flex-basis: 1.7rem;
+            
             .cd-button {
-              min-width: 0; // override min-width: auto
-              min-height: 0; // override min-width: auto
-              height: 0.6rem;
-              width: 0.6rem;
+              width: 1rem;
+              height: 1rem;
               border: none;
-              background: url('~assets/img/cancel.svg') no-repeat;
+              background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
-            }
+            
+
           }
         }
         .comment-context {
           flex: 5;
-
           padding: 0 0.5rem;
-
           text-align: left;
         } // comment-context
       } // cc-comment
