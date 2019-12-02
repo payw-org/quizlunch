@@ -3,23 +3,26 @@
     <div class="title">
       <div class="logo" />uizLunch
     </div>
-    
     <div class="quiz-area">
       <div class="quiz-wrapper">
         <div class="top">
           <div class="qt-title"> <!--{{ quiz.title }}--> </div>
-          <div class="qt-money">
-            <div class="qt-money-int">{{ quizMoneyInt }}.</div>
-            <div class="qt-money-float">{{ quizMoneyFloat }}</div>
-            <div class="qt-money-unit">&#8361;</div>
-          </div>
+          <transition name="fade" mode="out-in">
+            <div class="qt-money" v-if="!isChange">
+              <div class="qt-money-int">{{ quizMoneyInt }}.</div>
+              <div class="qt-money-float">{{ quizMoneyFloat }}</div>
+              <div class="qt-money-unit">&#8361;</div>
+            </div>
+          </transition>
         </div>
         <div class="middle">
           <div class="quiz-move">
             <div class="quiz-left" v-if="!isFirst" v-on:click="previousQuiz();" />
           </div>
           <div class="qm-content-wrapper" >
-            <div class="qm-content">{{ quiz.information }}</div>
+            <transition name="fade" mode="out-in">
+              <div class="qm-content" v-if="!isChange">{{ quiz.information }}</div>
+            </transition>
           </div>
           <div class="quiz-move">
             <div class="quiz-right" v-if="!isLast" v-on:click="nextQuiz();"/>
@@ -37,12 +40,14 @@
         <input class="ai-submit" type="submit" value="Enter">
       </form>
       <div class="a-solved" v-else v-on:click="answerCovered=!answerCovered">
-        <div class="as-cover" v-if="answerCovered === true" >
-          show
-        </div>
-        <div class="as-answer" v-else >
-          {{ quiz.answer }}
-        </div>
+        <transition name="fade" mode="out-in">
+          <div class="as-cover" v-if="answerCovered === true" key="cover">
+            show
+          </div>
+          <div class="as-answer" v-else key="notCover">
+            {{ quiz.answer }}
+          </div>
+        </transition>
       </div>
     </div>
     <div class="comment-area">
@@ -53,20 +58,22 @@
         <div class="input-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
-      <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
-        <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
-          <div class="comment-info">
-            <div class="comment-nickname">{{ comment.nickname }}</div>
-            <div class="comment-time">{{ comment.time }}</div>
-            <div class="comment-ip">{{ comment.ip }}</div>
-            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
-              <!-- <div class="cd-button" type="button"/> -->
-            </form>
-          </div>
-          <div class="comment-context">{{ comment.text }}</div>
+        <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
+          <transition-group name="list-fade" tag="p">
+            <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
+              <div class="comment-info">
+                <div class="comment-nickname">{{ comment.nickname }}</div>
+                <div class="comment-time">{{ comment.time }}</div>
+                <div class="comment-ip">{{ comment.ip }}</div>
+                <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
+                  <!-- <div class="cd-button" type="button"/> -->
+                </form>
+              </div>
+              <div class="comment-context">{{ comment.text }}</div>
+            </div>
+          </transition-group>
+          <div class='loader' v-if="loading"/> 
         </div>
-        <div class='loader' v-if="loading"/> 
-      </div>
     </div>
   </div>
 </template>
@@ -95,7 +102,8 @@ export default {
       busy: true,
       loading: false,
       isFirst: false,
-      isLast: true
+      isLast: true,
+      isChange: false
     }
   },
   computed: {
@@ -145,7 +153,7 @@ export default {
       }
     },
     async onMessageWS(){
-      this.ws.onmessage = (event)=>{  
+      this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
         if(result['renew comments']){
           this.comments = result['renew comments']
@@ -161,7 +169,11 @@ export default {
           }
         }
         if(result['renew quiz']){
-          this.quiz = result['renew quiz']
+          this.isChange = true;
+          this.quiz = result['renew quiz'];
+          setTimeout(()=>{
+            this.isChange = false
+          },300)
         }
         if(result['renew money']){
           if(this.quiz['quizID'] === result['renew money']['quizID'] && this.quiz['gotAnswer'] === 0)
@@ -234,10 +246,14 @@ export default {
       
       const result = await axios.get(url)
       if(result.data){
+        this.isChange = true;
         this.quiz = result.data.quiz
         this.comments = result.data.comments
         this.isFirst = result.data.isFirst
         this.isLast = result.data.isLast
+        setTimeout(()=>{
+          this.isChange = false
+        },300)
       }
     },
     async nextQuiz(){
@@ -245,10 +261,14 @@ export default {
       
       const result = await axios.get(url)
       if(result.data){
+        this.isChange = true;
         this.quiz = result.data.quiz
         this.comments = result.data.comments
         this.isFirst = result.data.isFirst
         this.isLast = result.data.isLast
+        setTimeout(()=>{
+          this.isChange = false
+        },300)
       }
 
     }
@@ -512,6 +532,14 @@ export default {
         align-items: center;
         background: #D3DAE6;
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s;
+        &.list-fade-enter-active {
+          transition-delay: 0.3s;
+        }
+        &.list-fade-enter,
+        &.list-fade-leave-to {
+          opacity: 0;
+        }
         .comment-info {
           display: flex;
           .comment-nickname {
@@ -577,6 +605,14 @@ export default {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: all 0.3s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
 }
 </style>
   
