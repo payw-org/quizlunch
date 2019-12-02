@@ -567,7 +567,7 @@ export default {
         .comment-info {
           display: flex;
           .comment-nickname {
-            flex-basis: auto;
+            flex-basis: 6rem;
             padding: 0 0.5rem;
             font-weight: 400;
           }
@@ -579,7 +579,7 @@ export default {
             text-align: left;
           }
           .comment-ip {
-            flex-basis: auto;
+            flex-basis: 6rem;
             color: #D3DAE6;
             font-size: 0.7rem;
             padding: 0 0.5rem;
