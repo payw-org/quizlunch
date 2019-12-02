@@ -305,7 +305,7 @@ export default {
               height: 1rem;
               width: 1rem;
               border: none;
-              background: url('~assets/img/cancel.svg') no-repeat;
+              background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
             }
           }
