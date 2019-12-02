@@ -159,8 +159,10 @@ export default {
           this.comments = result['renew comments']
         }
         if(result['insert comment']){
-          this.comments = [result['insert comment']].concat(this.comments)
-          this.comments = this.comments.slice(0,this.numOfComments)
+          if(this.quiz.quizID === result['insert comment'].quizID){
+            this.comments = [result['insert comment']].concat(this.comments)
+            this.comments = this.comments.slice(0,this.numOfComments)
+          }
         }
         if(result['delete comment']){
           for(var i=0; i<this.comments.lenght; i++){
