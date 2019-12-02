@@ -520,7 +520,7 @@ export default {
             text-align: right;
           }
           .comment-delete {
-            flex-basis: 1.7rem;
+            flex-basis: 1.6rem;
             
             .cd-button {
               width: 1rem;
@@ -528,7 +528,7 @@ export default {
               border: none;
               background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
-            
+            }
 
           }
         }
