@@ -219,12 +219,15 @@ export default {
     },
     async postAnswer(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
-      this.answerTextarea = ''
       
       const result = await axios.get(url)
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
       }
+      else{
+        alert(`${result.data.count} users tried '${this.answerTextarea}'.`);
+      }
+      this.answerTextarea = ''
     },
     async previousQuiz(){
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/previous`
