@@ -58,22 +58,22 @@
         <div class="input-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
-        <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
-          <transition-group name="list-fade" tag="p">
-            <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
-              <div class="comment-info">
-                <div class="comment-nickname">{{ comment.nickname }}</div>
-                <div class="comment-time">{{ comment.time }}</div>
-                <div class="comment-ip">{{ comment.ip }}</div>
-                <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
-                  <!-- <div class="cd-button" type="button"/> -->
-                </form>
+      <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
+        <transition-group name="list-fade" tag="p">
+          <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
+            <div class="comment-info">
+              <div class="comment-nickname">{{ comment.nickname }}</div>
+              <div class="comment-time">{{ comment.time }}</div>
+              <div class="comment-ip">{{ comment.ip }}</div>
+              <div class="comment-delete">
+                <input class="cd-button" type="submit" value="" @click="checkPassword(comment.commentID)" />
               </div>
-              <div class="comment-context">{{ comment.text }}</div>
             </div>
-          </transition-group>
-          <div class='loader' v-if="loading"/> 
-        </div>
+            <div class="comment-context">{{ comment.text }}</div>
+          </div>
+        </transition-group>
+        <div class='loader' v-if="loading"/> 
+      </div>
     </div>
   </div>
 </template>
@@ -99,6 +99,7 @@ export default {
       commentTextarea: '',
       commentPassword: '',
       answerTextarea: '',
+      deletePassword: '',
       busy: true,
       loading: false,
       isFirst: false,
@@ -126,6 +127,10 @@ export default {
     },1000)
   },
   methods: {
+    checkPassword(commentID) {
+      const password = window.prompt('password를 입력해주세요')
+      this.deleteComment(commentID,password)
+    },
     calcMoney(){
       var tick = 33
       var totalSecond = 24*60*60
@@ -165,9 +170,12 @@ export default {
           }
         }
         if(result['delete comment']){
-          for(var i=0; i<this.comments.lenght; i++){
+          for(var i=0; i<this.comments.length; i++){
             if(this.comments[i]['commentID'] == result['delete comment'])
-              this.comments = this.comments.splice(i, 1)
+            {
+              this.comments.splice(i, 1)
+              break;
+            }
           }
         }
         if(result['renew quiz']){
@@ -207,6 +215,21 @@ export default {
       }
       this.commentTextarea = ''
       await axios.post(url, body)
+    },
+    async deleteComment(commentID,password){
+      if(password!==null)
+      {
+        const url = `${this.baseURL['db']}/comment`
+        const data = {
+          commentID: commentID,
+          password: password
+        }
+        var result = await axios.delete(url,{data})
+        if(result.data!=200)
+        {
+          alert("비밀번호가 틀립니다");
+        }
+      }
     },
     async moreComments(){
       this.busy = true
@@ -526,13 +549,12 @@ export default {
     .c-container {
       margin: 0 0.5rem;
       .cc-comment {
-
         padding: 0.3rem 0;
         margin-top: 0.5rem;
         border-radius: 10px;
 
         align-items: center;
-        background: #D3DAE6;
+        background: #d3dae6;
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
         transition: all 0.3s;
         &.list-fade-enter-active {
@@ -545,10 +567,8 @@ export default {
         .comment-info {
           display: flex;
           .comment-nickname {
-            flex-basis: auto;
-
+            flex-basis: 6rem;
             padding: 0 0.5rem;
-           
             font-weight: 400;
           }
           .comment-time {
@@ -562,27 +582,25 @@ export default {
             flex-basis: 6rem;
             color: #D3DAE6;
             font-size: 0.7rem;
+            padding: 0 0.5rem;
+            text-align: right;
           }
           .comment-delete {
             flex-basis: 1.6rem;
-            padding: 0 0.5rem;
-
+            
             .cd-button {
-              min-width: 0; // override min-width: auto
-              min-height: 0; // override min-width: auto
-              height: 0.6rem;
-              width: 0.6rem;
+              width: 1rem;
+              height: 1rem;
               border: none;
-              background: url('~assets/img/cancel.svg') no-repeat;
+              background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
             }
+
           }
         }
         .comment-context {
           flex: 5;
-
           padding: 0 0.5rem;
-
           text-align: left;
         } // comment-context
       } // cc-comment
