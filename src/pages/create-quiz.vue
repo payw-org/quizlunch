@@ -18,7 +18,9 @@
           <div class="qm-content-wrapper" >
             <div class="qt-information">Quiz</div>
           </div>
-          <textarea class="qt-informationTextArea" type="text" v-model="information" required maxlength="200" />
+          <div class="qm-content-wrapper" >
+            <textarea class="qt-informationTextArea" type="text" v-model="information" required maxlength="200" />
+          </div>
           <div class="qm-content-wrapper" >
             <div class="qt-title">Answer</div>
             <input class="qt-titleTextArea" type="text" v-model="answer" required maxlength="80">
@@ -176,9 +178,6 @@ export default {
           align-items: center;
           text-align: center;
           height: 20rem;
-          // width: 50rem;
-          width: calc(100% - 2rem);
-          max-width: 50rem;
           @include border-style;
         }
         .qm-content-wrapper {
@@ -200,15 +199,16 @@ export default {
 
           .qm-masterKeyTextArea{
           flex: auto;
-          min-width: 0; // override min-width: auto
-          
+          width: 8rem; 
+          min-width: 0;
           padding-left: 0.5rem;
+          padding: 0;
           @include border-style;
           border-radius: 1rem 0 0 1rem;
           }
 
           .qm-submit {
-          
+          padding: 0;
           padding-left:0.3rem;
           padding-right:0.5rem;
           @include border-style;
