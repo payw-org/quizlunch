@@ -567,7 +567,7 @@ export default {
         .comment-info {
           display: flex;
           .comment-nickname {
-            flex-basis: 6rem;
+            flex-basis: auto;
             padding: 0 0.5rem;
             font-weight: 400;
           }
@@ -592,6 +592,7 @@ export default {
               width: 1rem;
               height: 1rem;
               border: none;
+              padding: 0;
               background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
             }
