@@ -199,6 +199,9 @@ export default {
     async onCloseWS(){
       this.ws.onclose = (event)=>{
         console.log("Sever closed")
+        setTimeout(()=>{
+          this.initWS()
+        },2000)
       }
     },
     //
@@ -594,6 +597,7 @@ export default {
               border: none;
               background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
+              border-radius: 0;
             }
 
           }
