@@ -307,6 +307,8 @@ export default {
               border: none;
               background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
+              border-radius: 0;
+
             }
           }
         }
