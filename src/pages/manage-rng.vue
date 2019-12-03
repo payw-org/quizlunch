@@ -313,6 +313,8 @@ export default {
               padding: 0;
               background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
+              border-radius: 0;
+
             }
           }
         }
