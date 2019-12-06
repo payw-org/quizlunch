@@ -157,6 +157,9 @@ export default {
         console.log('connected')
       }
     },
+    //
+    // Websocket
+    //
     async onMessageWS(){
       this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
@@ -208,45 +211,54 @@ export default {
     // REST API
     //
     async postComment(){
-      if(this.commentTextarea.trim().length < 2)
+      if(this.quiz.quizID === undefined) // quiz is not exist
         return
+
+      if(this.commentTextarea.trim().length < 2) // comment is too shorts
+        return
+    
       const url = `${this.baseURL['db']}/comment`
-      const body = {
-        quizID: this.quiz.quizID,
-        text: this.commentTextarea,
-        password: this.commentPassword
-      }
+      var body = {}
+      body['quizID'] = this.quiz.quizID 
+      body['text'] = this.commentTextarea
+      body['password'] = this.commentPassword
       this.commentTextarea = ''
+
       await axios.post(url, body)
     },
     async deleteComment(commentID,password){
-      if(password!==null)
-      {
-        const url = `${this.baseURL['db']}/comment`
-        const data = {
-          commentID: commentID,
-          password: password
-        }
-        var result = await axios.delete(url,{data})
-        if(result.data!=200)
-        {
-          alert("비밀번호가 틀립니다");
-        }
+      if(password === null)
+        return
+
+      const url = `${this.baseURL['db']}/comment`
+      var data = {}
+      data['commentID'] = commentID
+      data['password'] = password
+
+      var result = await axios.delete(url,{data})
+      if(result.data !== 200){
+        alert("비밀번호가 틀립니다.");
       }
+      
     },
     async moreComments(){
+      if(this.quiz.quizID === undefined)
+        return
+      if(this.busy === true)
+        return
+      
       this.busy = true
+
       const url = `${this.baseURL['db']}/comment/more`
-      const body = {
-        params: {
-          quizID: this.quiz.quizID,
-          numOfComments: this.numOfComments,
-        }
-      }
+      var body = {params:{}}
+      body['params']['quizID'] = this.quiz.quizID
+      body['params']['numOfComments'] = this.numOfComments
+
       this.loading = true
-      const result = await axios.get(url, body)
+      var result = await axios.get(url, body)
       this.loading = false
-      if(result.data.length != 0){
+
+      if(result.data.length !== 0){
         this.comments = this.comments.concat(result.data)
         this.numOfComments += 20
         this.busy = false
@@ -258,21 +270,27 @@ export default {
       }
     },
     async postAnswer(){
-      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
+      if(this.quiz.quizID === undefined)
+        return
       
-      const result = await axios.get(url)
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
+      this.answerTextarea = ''
+
+      var result = await axios.get(url)
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
       }
       else{
-        alert(`${result.data.count} users tried '${this.answerTextarea}'.`);
+        alert(`${result.data.count}명의 사용자가 오답 '${this.answerTextarea}'을 시도했습니다.`)
       }
-      this.answerTextarea = ''
     },
     async previousQuiz(){
+      if(this.quiz.quizID === undefined)
+        return
+      
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/previous`
       
-      const result = await axios.get(url)
+      var result = await axios.get(url)
       if(result.data){
         this.isChange = true;
         this.quiz = result.data.quiz
@@ -285,9 +303,12 @@ export default {
       }
     },
     async nextQuiz(){
+      if(this.quiz.quizID === undefined)
+        return
+
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/next`
       
-      const result = await axios.get(url)
+      var result = await axios.get(url)
       if(result.data){
         this.isChange = true;
         this.quiz = result.data.quiz
