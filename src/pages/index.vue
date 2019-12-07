@@ -274,8 +274,6 @@ export default {
         return
       
       const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
-      this.answerTextarea = ''
-
       var result = await axios.get(url)
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
@@ -283,6 +281,7 @@ export default {
       else{
         alert(`${result.data.count}명의 사용자가 오답 '${this.answerTextarea}'을 시도했습니다.`)
       }
+      this.answerTextarea = ''
     },
     async previousQuiz(){
       if(this.quiz.quizID === undefined)
