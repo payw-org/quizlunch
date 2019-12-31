@@ -3,25 +3,35 @@
     <div class="title">
       <div class="logo" />uizLunch
     </div>
-    
     <div class="quiz-area">
-      <!-- <div class="quiz-left" /> -->
       <div class="quiz-wrapper">
         <div class="top">
-          <!-- <div class="qt-index">#1</div> -->
-          <div class="qt-title"> {{ quiz.title }} </div>
-          <div class="qt-money">{{ quiz.money }}</div>
+          <div class="qt-title"> <!--{{ quiz.title }}--> </div>
+          <transition name="fade" mode="out-in">
+            <div class="qt-money" v-if="!isChange">
+              <div class="qt-money-int">{{ quizMoneyInt }}.</div>
+              <div class="qt-money-float">{{ quizMoneyFloat }}</div>
+              <div class="qt-money-unit">&#8361;</div>
+            </div>
+          </transition>
         </div>
         <div class="middle">
+          <div class="quiz-move">
+            <div class="quiz-left" v-if="!isFirst" v-on:click="previousQuiz();" />
+          </div>
           <div class="qm-content-wrapper" >
-            <div class="qm-content">{{ quiz.information }}</div>
+            <transition name="fade" mode="out-in">
+              <div class="qm-content" v-if="!isChange">{{ quiz.information }}</div>
+            </transition>
+          </div>
+          <div class="quiz-move">
+            <div class="quiz-right" v-if="!isLast" v-on:click="nextQuiz();"/>
           </div>
         </div>
         <div class="bottom">
-          - made by Quizlunch
+          - made by {{ quiz.author }}
         </div>
       </div>
-      <!-- <div class="quiz-right" /> -->
     </div>
     <div class="answer-area">
       <form class="a-input" v-if="quiz.answer === ''" v-on:submit.prevent="postAnswer();">
@@ -30,34 +40,39 @@
         <input class="ai-submit" type="submit" value="Enter">
       </form>
       <div class="a-solved" v-else v-on:click="answerCovered=!answerCovered">
-        <div class="as-cover" v-if="answerCovered === true" >
-          show
-        </div>
-        <div class="as-answer" v-else >
-          {{ quiz.answer }}
-        </div>
+        <transition name="fade" mode="out-in">
+          <div class="as-cover" v-if="answerCovered === true" key="cover">
+            show
+          </div>
+          <div class="as-answer" v-else key="notCover">
+            {{ quiz.answer }}
+          </div>
+        </transition>
       </div>
     </div>
     <div class="comment-area">
-      <form class="c-input" v-on:submit.prevent="postComment();">
+      <form class="c-input" v-if="isLast" v-on:submit.prevent="postComment();">
         <input class="ci-textarea" type="textarea" v-model="commentTextarea" required minlength="2" maxlength="80">
         <div class="input-cushion" />
         <input class="ci-password" type="password" v-model="commentPassword" required minlength="4">
         <div class="input-cushion" />
         <input class="ci-submit" type="submit" value="Enter">
       </form> 
-      <div class="c-container">
-        <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
-          <div class="comment-info">
-            <div class="comment-nickname">{{ comment.nickname }}</div>
-            <div class="comment-time">{{ comment.time }}</div>
-            <div class="comment-ip">{{ comment.ip }}</div>
-            <form class="comment-delete" v-on:submit.prevent="deleteComment(comment.commentID);">
-              <!-- <div class="cd-button" type="button"/> -->
-            </form>
+      <div class="c-container" v-infinite-scroll="moreComments" infinite-scroll-disabled="busy" infinite-scroll-distance="1">
+        <transition-group name="list-fade" tag="p">
+          <div class="cc-comment" v-for="comment in comments" v-bind:key="comment.commentID">
+            <div class="comment-info">
+              <div class="comment-nickname">{{ comment.nickname }}</div>
+              <div class="comment-time">{{ comment.time }}</div>
+              <div class="comment-ip">{{ comment.ip }}</div>
+              <div class="comment-delete">
+                <input class="cd-button" type="submit" value="" @click="checkPassword(comment.commentID)" />
+              </div>
+            </div>
+            <div class="comment-context">{{ comment.text }}</div>
           </div>
-          <div class="comment-context">{{ comment.text }}</div>
-        </div>
+        </transition-group>
+        <div class='loader' v-if="loading"/> 
       </div>
     </div>
   </div>
@@ -84,13 +99,52 @@ export default {
       commentTextarea: '',
       commentPassword: '',
       answerTextarea: '',
-      busy: false
+      deletePassword: '',
+      busy: true,
+      loading: false,
+      isFirst: false,
+      isLast: true,
+      isChange: false
+    }
+  },
+  computed: {
+    quizMoneyInt(){
+      if(this.quiz.money)
+        return parseInt(this.quiz.money)
+    },
+    quizMoneyFloat(){
+      if(this.quiz.money){
+        var intLen = parseInt(this.quiz.money).toString().length
+        return ((this.quiz.money).toFixed(3)).toString().slice(intLen+1)
+      }
     }
   },
   mounted(){
     this.initWS()
+    this.calcMoney()
+    setTimeout(()=>{
+      this.busy = false
+    },1000)
   },
   methods: {
+    checkPassword(commentID) {
+      const password = window.prompt('password를 입력해주세요')
+      this.deleteComment(commentID,password)
+    },
+    calcMoney(){
+      var tick = 33
+      var totalSecond = 24*60*60
+      var totalPrize = totalSecond/20
+      var moneyPerSecond = totalPrize / totalSecond
+      var moneyPerTick = parseFloat(moneyPerSecond/(1000/tick))
+      setInterval(()=>{
+        if(this.isLast === true && this.quiz.gotAnswer === 0)
+          this.quiz.money += moneyPerTick
+      }, tick)
+    },
+    //
+    // WebSocket
+    //
     async initWS(){
       this.ws = new WebSocket(this.baseURL['db_ws'])
       this.onOpenWS()
@@ -103,24 +157,36 @@ export default {
         console.log('connected')
       }
     },
+    //
+    // Websocket
+    //
     async onMessageWS(){
-      this.ws.onmessage = (event)=>{  
+      this.ws.onmessage = (event)=>{
         var result = JSON.parse(event.data)
         if(result['renew comments']){
           this.comments = result['renew comments']
         }
         if(result['insert comment']){
-          this.comments = [result['insert comment']].concat(this.comments)
-          this.comments = this.comments.slice(0,this.numOfComments)
+          if(this.quiz.quizID === result['insert comment'].quizID){
+            this.comments = [result['insert comment']].concat(this.comments)
+            this.comments = this.comments.slice(0,this.numOfComments)
+          }
         }
         if(result['delete comment']){
-          for(var i=0; i<this.comments.lenght; i++){
+          for(var i=0; i<this.comments.length; i++){
             if(this.comments[i]['commentID'] == result['delete comment'])
-              this.comments = this.comments.splice(i, 1)
+            {
+              this.comments.splice(i, 1)
+              break;
+            }
           }
         }
         if(result['renew quiz']){
-          this.quiz = result['renew quiz']
+          this.isChange = true;
+          this.quiz = result['renew quiz'];
+          setTimeout(()=>{
+            this.isChange = false
+          },300)
         }
         if(result['renew money']){
           if(this.quiz['quizID'] === result['renew money']['quizID'] && this.quiz['gotAnswer'] === 0)
@@ -136,44 +202,123 @@ export default {
     async onCloseWS(){
       this.ws.onclose = (event)=>{
         console.log("Sever closed")
-        this.ws = new WebSocket(this.baseURL['db_ws'])
+        setTimeout(()=>{
+          this.initWS()
+        },2000)
       }
     },
     //
     // REST API
     //
     async postComment(){
-      if(this.commentTextarea.trim().length < 3)
+      if(this.quiz.quizID === undefined) // quiz is not exist
         return
+
+      if(this.commentTextarea.trim().length < 2) // comment is too shorts
+        return
+    
       const url = `${this.baseURL['db']}/comment`
-      const body = {
-        quizID: this.quiz.quizID,
-        text: this.commentTextarea,
-        password: this.commentPassword
-      }
+      var body = {}
+      body['quizID'] = this.quiz.quizID 
+      body['text'] = this.commentTextarea
+      body['password'] = this.commentPassword
       this.commentTextarea = ''
+
       await axios.post(url, body)
     },
-    async moreComments(){
-      const url = `${this.baseURL['db']}/comment/more`
-      const body = {
-        params: {
-          quizID: this.quiz.quizID,
-          numOfComments: this.numOfComments,
-        }
+    async deleteComment(commentID,password){
+      if(password === null)
+        return
+
+      const url = `${this.baseURL['db']}/comment`
+      var data = {}
+      data['commentID'] = commentID
+      data['password'] = password
+
+      var result = await axios.delete(url,{data})
+      if(result.data !== 200){
+        alert("비밀번호가 틀립니다.");
       }
-      const result = await axios.get(url, body)
-      this.comments = this.comments.concat(result.data)
-      this.numOfComments += 20
+      
+    },
+    async moreComments(){
+      if(this.quiz.quizID === undefined)
+        return
+      if(this.busy === true)
+        return
+      
+      this.busy = true
+
+      const url = `${this.baseURL['db']}/comment/more`
+      var body = {params:{}}
+      body['params']['quizID'] = this.quiz.quizID
+      body['params']['numOfComments'] = this.numOfComments
+
+      this.loading = true
+      var result = await axios.get(url, body)
+      this.loading = false
+
+      if(result.data.length !== 0){
+        this.comments = this.comments.concat(result.data)
+        this.numOfComments += 20
+        this.busy = false
+      }
+      else{
+        setTimeout(()=>{
+          this.busy = false
+        },10000)
+      }
     },
     async postAnswer(){
-      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
-      this.answerTextarea = ''
+      if(this.quiz.quizID === undefined)
+        return
       
-      const result = await axios.get(url)
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/${this.answerTextarea}`
+      var result = await axios.get(url)
       if(result.data === 200){
         location.href = 'https://quizlunch.com/awards'
       }
+      else{
+        alert(`${result.data.count}명의 사용자가 오답 '${this.answerTextarea}'을 시도했습니다.`)
+      }
+      this.answerTextarea = ''
+    },
+    async previousQuiz(){
+      if(this.quiz.quizID === undefined)
+        return
+      
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/previous`
+      
+      var result = await axios.get(url)
+      if(result.data){
+        this.isChange = true;
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+        setTimeout(()=>{
+          this.isChange = false
+        },300)
+      }
+    },
+    async nextQuiz(){
+      if(this.quiz.quizID === undefined)
+        return
+
+      const url = `${this.baseURL['db']}/quiz/${this.quiz.quizID}/next`
+      
+      var result = await axios.get(url)
+      if(result.data){
+        this.isChange = true;
+        this.quiz = result.data.quiz
+        this.comments = result.data.comments
+        this.isFirst = result.data.isFirst
+        this.isLast = result.data.isLast
+        setTimeout(()=>{
+          this.isChange = false
+        },300)
+      }
+
     }
   }
 }
@@ -202,24 +347,7 @@ export default {
     display: flex;
     align-content: center;
     padding-bottom: 0.5rem;
-    .quiz-left {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
 
-      margin: auto 0.5rem;
-      background: url('~assets/img/left.svg') no-repeat;
-      background-size: contain;
-    }
-    .quiz-right {
-      flex-basis: 2rem;
-      height:2rem;
-      width:2rem;
-
-      margin: auto 0.5rem;
-      background: url('~assets/img/right.svg') no-repeat;
-      background-size:contain;
-    }
     .quiz-wrapper {
       
       flex: auto;
@@ -234,7 +362,7 @@ export default {
       background-size: cover;
       box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
       .top {
-        flex: 1;
+        flex-basis: 2rem;
         display: flex;
 
         padding: 0.5rem 0;
@@ -247,31 +375,69 @@ export default {
         .qt-money {
           flex-basis: 6rem;
 
-          // border-left: 1px solid #616161;
-
+          font-size: 0;
           text-align: right;
-          font-size: 0.9rem;
+          & * {
+            font-size: initial;
+          }
+          
+          .qt-money-int{
+            display: inline-block;
+          }
+          
+          .qt-money-float{
+            display: inline-block;
+            width: 1.5rem;
+            text-align: left;
+            font-size: 0.85rem;
+          }
+
+          .qt-money-unit{
+            display: inline-block;
+            padding-left: 0.3rem;
+          }
         }
       }
       
       .middle {
-        flex: 1;
-
+        flex: auto;
+        display: flex;
+        
+        align-items: center;
+        .quiz-move {
+          flex-basis: 2.5rem;
+          height:2.5rem;
+          width:2.5rem;
+          
+          .quiz-left {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/left.png') no-repeat;
+            background-size: cover;
+          }
+          .quiz-right {
+            width: inherit;
+            height: inherit;
+            background: url('~assets/img/right.png') no-repeat;
+            background-size: cover;
+          }
+        }
         .qm-content-wrapper {
+          flex: auto;
           display: flex;
           min-height: 10rem;
           align-items: center;
           justify-content: center;
 
-          // .qm-content {
-
-          // }
+          .qm-content {
+            white-space:pre-wrap;
+          }
 
         }
       }
 
       .bottom {
-        flex: 1;
+        flex-basis: 1rem;
 
         padding: 0.5rem 0;
         margin: 0 1rem;
@@ -406,21 +572,26 @@ export default {
     .c-container {
       margin: 0 0.5rem;
       .cc-comment {
-
         padding: 0.3rem 0;
         margin-top: 0.5rem;
         border-radius: 10px;
 
         align-items: center;
-        background: #D3DAE6;
+        background: #d3dae6;
         box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s;
+        &.list-fade-enter-active {
+          transition-delay: 0.3s;
+        }
+        &.list-fade-enter,
+        &.list-fade-leave-to {
+          opacity: 0;
+        }
         .comment-info {
           display: flex;
           .comment-nickname {
             flex-basis: auto;
-
             padding: 0 0.5rem;
-           
             font-weight: 400;
           }
           .comment-time {
@@ -434,27 +605,27 @@ export default {
             flex-basis: 6rem;
             color: #D3DAE6;
             font-size: 0.7rem;
+            padding: 0 0.5rem;
+            text-align: right;
           }
           .comment-delete {
             flex-basis: 1.6rem;
-            padding: 0 0.5rem;
-
+            
             .cd-button {
-              min-width: 0; // override min-width: auto
-              min-height: 0; // override min-width: auto
-              height: 0.6rem;
-              width: 0.6rem;
+              width: 1rem;
+              height: 1rem;
               border: none;
-              background: url('~assets/img/cancel.svg') no-repeat;
+              padding: 0;
+              background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
+              border-radius: 0;
             }
+
           }
         }
         .comment-context {
           flex: 5;
-
           padding: 0 0.5rem;
-
           text-align: left;
         } // comment-context
       } // cc-comment
@@ -465,6 +636,28 @@ export default {
     border-left: 0.5px solid #BFC7D5;
     border-right: 0.5px solid #BFC7D5;
   }
+  .loader {
+    margin: 1rem auto;
+    border: 0.2rem solid #f3f3f3; /* Light grey */
+    border-top: 0.2rem solid #000000; /* black */
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: all 0.3s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
 }
 </style>
   

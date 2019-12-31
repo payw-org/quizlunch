@@ -8,23 +8,25 @@
       <div class="quiz-wrapper">
         <div class="middle">
           <div class="qm-content-wrapper" >
-            <div class="qt-title">이름</div>
-            <input class="qt-titleTextArea" type="text" v-model="title" required maxlength="80">
+            <div class="qt-title">Author</div>
+            <input class="qt-titleTextArea" type="text" v-model="author" required maxlength="80">
           </div>
           <div class="qm-content-wrapper" >
-            <div class="qt-title">사진</div>
+            <div class="qt-title">Data</div>
             <input class="qt-titleTextArea" type="text" v-model="picture" required maxlength="80">
           </div> 
           <div class="qm-content-wrapper" >
-            <div class="qt-information">내용</div>
+            <div class="qt-information">Quiz</div>
           </div>
-          <input class="qt-informationTextArea" type="text" v-model="information" required maxlength="80">
           <div class="qm-content-wrapper" >
-            <div class="qt-title">정답</div>
+            <textarea class="qt-informationTextArea" type="text" v-model="information" required maxlength="200" />
+          </div>
+          <div class="qm-content-wrapper" >
+            <div class="qt-title">Answer</div>
             <input class="qt-titleTextArea" type="text" v-model="answer" required maxlength="80">
           </div>
           <form class="qm-input" v-on:submit.prevent="postQuiz();">
-            <input class="qm-masterKeyTextArea" type="masterKey" v-model="masterKey" required maxlength="80">
+            <input class="qm-masterKeyTextArea" type="password" v-model="masterKey" required maxlength="80">
             <input class="qm-submit" type="submit" value="Enter">
           </form> 
         </div>
@@ -50,7 +52,7 @@ export default {
       baseURL: {
         db : 'https://db.api.quizlunch.com'
       },
-      title: '',
+      author: '',
       picture: '',
       information: '',
       answer: '', 
@@ -61,25 +63,25 @@ export default {
     async postQuiz(){
       const url = `${this.baseURL['db']}/quiz/`
       var body = {
-        title: '',
+        author: '',
         picture: '',
         information: '',
         answer: '',
         masterKey:''
 
       }
-      body['title'] = this.title
+      body['author'] = this.author
       body['picture'] = this.picture
       body['information'] = this.information
       body['answer'] = this.answer
       body['masterKey'] = this.masterKey
-      this.title = ''
+      this.author = ''
       this.picture = ''
       this.information = ''
       this.answer = ''
       this.masterKey = ''
       var result = await axios.post(url, body)
-      if(result.data=200)
+      if(result.data==200)
       {
         alert("퀴즈가 생성 되었습니다");
       }
@@ -150,6 +152,7 @@ export default {
         
          .qt-title {
           flex: 1;
+          padding: 0 0.5rem;
           text-align: center;
           @include border-style;
           background: #D3DAE6;
@@ -171,11 +174,10 @@ export default {
         }
         .qt-informationTextArea {
           flex: auto;
+          justify-content: center;
+          align-items: center;
           text-align: center;
           height: 20rem;
-          // width: 50rem;
-          width: calc(100% - 2rem);
-          max-width: 50rem;
           @include border-style;
         }
         .qm-content-wrapper {
@@ -197,15 +199,16 @@ export default {
 
           .qm-masterKeyTextArea{
           flex: auto;
-          min-width: 0; // override min-width: auto
-          
+          width: 8rem; 
+          min-width: 0;
           padding-left: 0.5rem;
+          padding: 0;
           @include border-style;
           border-radius: 1rem 0 0 1rem;
           }
 
           .qm-submit {
-          
+          padding: 0;
           padding-left:0.3rem;
           padding-right:0.5rem;
           @include border-style;

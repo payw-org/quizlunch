@@ -250,20 +250,25 @@ export default {
         }
         .rng-inputTextArea {
           text-align: center;
-
+          width : 8rem;
           min-width: 0; // override min-width: auto
           padding-left: 0.5rem;
+          padding: 0;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
           border-radius: 1rem 0 0 1rem;
-          @include border-style;
+          font-size: 1rem;
         }
         .rng-submit {
           padding-left:0.3rem;
           padding-right:0.5rem;
-          @include border-style;
           border-radius: 0 1rem 1rem 0;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
 
           background:none;
           text-align: center;
+          font-size: 1rem;
         }
         .rng-content-wrapper {
           display: flex;
@@ -305,8 +310,11 @@ export default {
               height: 1rem;
               width: 1rem;
               border: none;
-              background: url('~assets/img/cancel.svg') no-repeat;
+              padding: 0;
+              background: url('~assets/img/cancel.png') no-repeat;
               background-size: cover;
+              border-radius: 0;
+
             }
           }
         }
